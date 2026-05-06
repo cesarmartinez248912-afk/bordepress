@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>BordaXpress - Uniformes y Bordados</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Work+Sans:wght@600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#f7fafd",
+                        "tertiary": "#0e0300",
+                        "tertiary-container": "#341600",
+                        "surface-container-low": "#f1f4f7",
+                        "surface-container-highest": "#e0e3e6",
+                        "secondary-fixed": "#ffdcc3",
+                        "on-surface": "#181c1e",
+                        "surface-dim": "#d7dadd",
+                        "on-tertiary-container": "#ce6c0a",
+                        "primary-fixed": "#d4e3ff",
+                        "surface": "#f7fafd",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary-container": "#6f88ad",
+                        "on-secondary-fixed": "#2f1500",
+                        "on-surface-variant": "#43474e",
+                        "secondary-fixed-dim": "#ffb77d",
+                        "tertiary-fixed": "#ffdcc5",
+                        "background": "#f7fafd",
+                        "on-secondary-fixed-variant": "#6e3900",
+                        "surface-tint": "#476083",
+                        "secondary-container": "#fd8b00",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#afc8f0",
+                        "inverse-on-surface": "#eef1f4",
+                        "secondary": "#904d00",
+                        "on-primary-fixed": "#001c3a",
+                        "on-primary-fixed-variant": "#2f486a",
+                        "on-tertiary-fixed-variant": "#713700",
+                        "on-tertiary-fixed": "#301400",
+                        "on-background": "#181c1e",
+                        "primary-container": "#001f3f",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#000613",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "outline": "#74777f",
+                        "inverse-surface": "#2d3133",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e0e3e6",
+                        "surface-container-high": "#e5e8eb",
+                        "on-secondary-container": "#603100",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#afc8f0",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "outline-variant": "#c4c6cf",
+                        "surface-container": "#ebeef1"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "base": "8px",
+                        "xs": "4px",
+                        "md": "24px",
+                        "gutter": "24px",
+                        "sm": "12px",
+                        "lg": "48px",
+                        "xl": "80px",
+                        "container-max": "1280px"
+                    },
+                    fontFamily: {
+                        "body-lg": ["Inter"],
+                        "button": ["Inter"],
+                        "h2": ["Work Sans"],
+                        "h3": ["Work Sans"],
+                        "body-md": ["Inter"],
+                        "h1": ["Work Sans"],
+                        "label-sm": ["Inter"]
+                    },
+                    fontSize: {
+                        "body-lg": ["18px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
+                        "button": ["16px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "h2": ["36px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h3": ["24px", { "lineHeight": "1.3", "letterSpacing": "0", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }],
+                        "h1": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+    <!-- 1. TopNavBar -->
+    <nav
+        class="bg-primary-container dark:bg-primary-container text-on-primary dark:text-on-primary font-body-md text-body-md border-b border-secondary-container shadow-sm docked full-width top-0 sticky z-50">
+        <div class="flex justify-between items-center w-full px-md py-sm max-w-container-max mx-auto">
+            <div class="flex items-center gap-sm">
+                <img alt="BordaXpress Logo" class="h-10 w-10 rounded-full bg-surface-container-lowest object-cover"
+                    data-alt="A clean, modern corporate logo for an embroidery company named 'BordaXpress'. The logo features a sophisticated interplay of navy blue and gold accents against a pristine white background. A subtle, elegant needle or stitching motif is incorporated into the flat vector design. The overall aesthetic is professional, sharp, and highly polished, suitable for a light-mode corporate identity."
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuARgkee2KmJJAUdTelWa7D5fmrF5BZM1UQ9h4iSw2s_hZlaxDXqBPtA9XMg0_i98H1p3TjoQgAMunniw89SLagJ9ib_ziLqdyTskXjygOFIrlaXhJ1UN6HR17ACnKoV0-yhhB-0Co7w6zG1nggyZnpVmfTKOlhqJ59SUlgT1cr3qUYj66RhDyORTU3dOdbgszmqJMs-YaNvVJbFUe70N9RsV7ntz0b-rCYuslqG1oL01ge6p6X5LOc3_oiM1-CZfARkG5UXaKRuv4A" />
+                <span class="font-h3 text-h3 font-bold text-on-primary">BordaXpress</span>
+            </div>
+            <div class="hidden md:flex items-center gap-md">
+                <a class="text-on-primary hover:text-secondary-container hover:bg-primary/10 transition-all px-xs py-xs rounded"
+                    href="#servicios">Servicios</a>
+                <a class="text-on-primary hover:text-secondary-container hover:bg-primary/10 transition-all px-xs py-xs rounded"
+                    href="#galeria">Galería</a>
+                <a class="text-on-primary hover:text-secondary-container hover:bg-primary/10 transition-all px-xs py-xs rounded"
+                    href="#como-funciona">¿Cómo funciona?</a>
+                <a class="text-on-primary hover:text-secondary-container hover:bg-primary/10 transition-all px-xs py-xs rounded"
+                    href="#clientes">Clientes</a>
+                <a class="text-on-primary hover:text-secondary-container hover:bg-primary/10 transition-all px-xs py-xs rounded"
+                    href="#contacto">Contacto</a>
+            </div>
+            <div class="flex items-center gap-md">
+                <div class="hidden lg:flex items-center gap-xs text-on-primary">
+                    <span class="material-symbols-outlined" data-icon="call">call</span>
+                    <span class="font-label-sm text-label-sm">800-BORDADOS</span>
+                </div>
+                <button
+                    class="bg-secondary-container text-on-primary font-button text-button px-md py-sm rounded-lg hover:scale-95 transition-transform duration-200">Cotiza
+                    ahora</button>
+            </div>
+        </div>
+    </nav>
+    <!-- 2. Hero -->
+    <header class="relative bg-primary-container py-xl text-on-primary overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div class="w-full h-full bg-cover bg-center opacity-30"
+                data-alt="A close-up, high-resolution macro shot of a complex, automated embroidery machine actively stitching a precise corporate logo onto a heavy-duty fabric. The lighting is dramatic yet professional, highlighting the texture of the threads and the gleaming metal of the needles. The scene is set in a modern, clean industrial environment. The color palette leans towards deep navy blues and industrial silvers, perfectly complementing a high-end corporate website aesthetic."
+                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCpPEbIj__eya2ko8xHuiFgfnrXhYOmnAVcJ3PPPobB8FezAFDAKdWcb7o3lE619OY_LHsdX6XRP557_2ZZcQIsDBiMwO6QWe95LIk_0OfMVf5Ie8hL0NloH3B6mA8sKFFiMZzstfkviqKcuo3ODZ_uQzXtY_8CAjb19Ht-u0xUzZEnDaJUoasZpcFit0sy7yYaxCBXAO_uR4P8_oiKYA-S-4lh0AlepMgFzJIxTS87hz1JEaDgIozQXUil-USF3Fx7dBlRsSLzEJs');">
+            </div>
+            <div
+                class="absolute inset-0 bg-gradient-to-r from-primary-container via-primary-container/80 to-transparent">
+            </div>
+        </div>
+        <div class="relative z-10 max-w-container-max mx-auto px-md grid md:grid-cols-2 gap-xl items-center">
+            <div class="flex flex-col gap-lg">
+                <div class="flex flex-col gap-md">
+                    <h1 class="font-h1 text-h1 text-on-primary">Uniformes y bordados que dan imagen a tu empresa</h1>
+                    <p class="font-body-lg text-body-lg text-inverse-primary max-w-lg">Bordado computarizado de alta
+                        precisión con entregas express. Elevamos la presentación de tu equipo con estándares
+                        industriales.</p>
+                </div>
+                <div class="flex flex-wrap gap-md">
+                    <button
+                        class="bg-secondary-container text-on-primary font-button text-button px-md py-sm rounded-lg hover:bg-secondary transition-colors">Solicitar
+                        cotización gratis</button>
+                    <button
+                        class="border-2 border-on-primary text-on-primary font-button text-button px-md py-sm rounded-lg hover:bg-on-primary/10 transition-colors">Ver
+                        galería</button>
+                </div>
+            </div>
+        </div>
+        <!-- Trust Bar -->
+        <div class="relative z-10 w-full bg-primary/40 backdrop-blur-sm border-t border-secondary-container/30 mt-xl">
+            <div class="max-w-container-max mx-auto px-md py-md flex flex-wrap justify-between items-center gap-md">
+                <div class="flex items-center gap-sm text-secondary-fixed">
+                    <span class="material-symbols-outlined fill text-h2" data-icon="military_tech">military_tech</span>
+                    <span class="font-label-sm text-label-sm uppercase tracking-wider">10+ años</span>
+                </div>
+                <div class="flex items-center gap-sm text-secondary-fixed">
+                    <span class="material-symbols-outlined fill text-h2" data-icon="groups">groups</span>
+                    <span class="font-label-sm text-label-sm uppercase tracking-wider">+5,000 clientes</span>
+                </div>
+                <div class="flex items-center gap-sm text-secondary-fixed">
+                    <span class="material-symbols-outlined fill text-h2"
+                        data-icon="local_shipping">local_shipping</span>
+                    <span class="font-label-sm text-label-sm uppercase tracking-wider">Entregas 24-72 hrs</span>
+                </div>
+                <div class="flex items-center gap-sm text-secondary-fixed">
+                    <span class="material-symbols-outlined fill text-h2" data-icon="storefront">storefront</span>
+                    <span class="font-label-sm text-label-sm uppercase tracking-wider">3 Sucursales</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- 13. Footer -->
+    <footer
+        class="bg-primary dark:bg-tertiary-container text-on-primary dark:text-on-tertiary-container font-body-md text-body-md full-width">
+        <div
+            class="flex flex-col md:flex-row justify-between items-center w-full px-md py-lg max-w-container-max mx-auto border-b border-primary-container/20">
+            <div class="flex items-center gap-sm mb-md md:mb-0">
+                <img alt="BordaXpress Logo" class="h-12 w-12 rounded-full bg-surface-container-lowest object-cover"
+                    data-alt="A clean, modern corporate logo for an embroidery company named 'BordaXpress'. The logo features a sophisticated interplay of navy blue and gold accents against a pristine white background. A subtle, elegant needle or stitching motif is incorporated into the flat vector design. The overall aesthetic is professional, sharp, and highly polished, suitable for a light-mode corporate identity."
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuARgkee2KmJJAUdTelWa7D5fmrF5BZM1UQ9h4iSw2s_hZlaxDXqBPtA9XMg0_i98H1p3TjoQgAMunniw89SLagJ9ib_ziLqdyTskXjygOFIrlaXhJ1UN6HR17ACnKoV0-yhhB-0Co7w6zG1nggyZnpVmfTKOlhqJ59SUlgT1cr3qUYj66RhDyORTU3dOdbgszmqJMs-YaNvVJbFUe70N9RsV7ntz0b-rCYuslqG1oL01ge6p6X5LOc3_oiM1-CZfARkG5UXaKRuv4A" />
+                <span class="font-h3 text-h3 font-bold text-secondary-container">BordaXpress</span>
+            </div>
+            <div class="flex flex-wrap justify-center gap-md">
+                <a class="text-on-primary-fixed-variant hover:text-secondary-container hover:underline transition-all"
+                    href="#">Servicios</a>
+                <a class="text-on-primary-fixed-variant hover:text-secondary-container hover:underline transition-all"
+                    href="#">Galería</a>
+                <a class="text-on-primary-fixed-variant hover:text-secondary-container hover:underline transition-all"
+                    href="#">Aviso de Privacidad</a>
+                <a class="text-on-primary-fixed-variant hover:text-secondary-container hover:underline transition-all"
+                    href="#">Términos y Condiciones</a>
+                <a class="text-on-primary-fixed-variant hover:text-secondary-container hover:underline transition-all"
+                    href="#">Contacto</a>
+            </div>
+        </div>
+        <div class="text-center py-md text-on-primary-fixed-variant font-label-sm text-label-sm bg-primary/90">
+            © 2024 BordaXpress Industrial. Calidad y precisión en cada puntada.
+        </div>
+    </footer>
+    <!-- FAB -->
+    <button aria-label="Contactar por WhatsApp"
+        class="fixed bottom-lg right-lg bg-[#25D366] text-white p-sm rounded-full shadow-lg hover:scale-110 transition-transform z-50 flex items-center justify-center h-14 w-14">
+        <span class="material-symbols-outlined text-[32px]" data-icon="forum">forum</span>
+    </button>
+</body>
+
+</html>
