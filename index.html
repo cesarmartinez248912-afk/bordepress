@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html class="light" lang="es">
 
 <head>
@@ -7,11 +6,10 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>BordaXpress - Uniformes y Bordados</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Work+Sans:wght@600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Work+Sans:wght@600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
     <style>
         .material-symbols-outlined {
@@ -20,6 +18,19 @@
 
         .material-symbols-outlined.fill {
             font-variation-settings: 'FILL' 1;
+        }
+
+        /* Modal animation */
+        #modal-cotizacion {
+            transition: opacity 0.25s ease;
+        }
+
+        #modal-cotizacion.hidden {
+            display: none;
+        }
+
+        #modal-box {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
         }
     </style>
     <script id="tailwind-config">
@@ -117,44 +128,216 @@
 </head>
 
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
+
+    <!-- =============================================
+         🔧 CONFIGURACIÓN SUPABASE
+         Reemplaza los valores con los tuyos del Paso 4
+         ============================================= -->
+    <script>
+        const SUPABASE_URL = 'https://mqocxeexisyrfkrhgdam.supabase.co/rest/v1/';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xb2N4ZWV4aXN5cmZrcmhnZGFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNDMyNjgsImV4cCI6MjA5MzYxOTI2OH0.YQqTlMA8nDCR7l48gjmE_cKpNZ24whypTpL8xCYUcBw';
+
+        const { createClient } = supabase;
+        const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
+
+    <!-- ===== MODAL DE COTIZACIÓN ===== -->
+    <div id="modal-cotizacion" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4"
+        style="background: rgba(0,6,19,0.75); backdrop-filter: blur(4px);" role="dialog" aria-modal="true"
+        aria-labelledby="modal-titulo">
+
+        <div id="modal-box" class="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden"
+            style="max-height: 90vh; overflow-y: auto;">
+
+            <!-- Header del modal -->
+            <div class="bg-primary-container px-md py-sm flex items-center justify-between sticky top-0 z-10">
+                <div>
+                    <h2 id="modal-titulo" class="font-h3 text-h3 text-on-primary">Solicitar cotización gratis</h2>
+                    <p class="text-inverse-primary text-sm mt-1">Te respondemos en menos de 24 horas</p>
+                </div>
+                <button id="btn-cerrar-modal"
+                    class="text-on-primary hover:text-secondary-container transition-colors p-1 rounded-lg"
+                    aria-label="Cerrar">
+                    <span class="material-symbols-outlined text-[28px]">close</span>
+                </button>
+            </div>
+
+            <!-- Formulario -->
+            <div id="form-wrapper" class="p-md">
+                <form id="form-cotizacion" novalidate class="flex flex-col gap-md">
+
+                    <!-- Fila 1: Nombre + Empresa -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                        <div class="flex flex-col gap-xs">
+                            <label for="nombre"
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+                                Nombre completo <span class="text-error">*</span>
+                            </label>
+                            <input id="nombre" name="nombre" type="text" required placeholder="Juan García"
+                                class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all" />
+                            <span class="error-msg text-error text-xs hidden">Campo requerido</span>
+                        </div>
+                        <div class="flex flex-col gap-xs">
+                            <label for="empresa"
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+                                Empresa / Organización
+                            </label>
+                            <input id="empresa" name="empresa" type="text" placeholder="Mi Empresa S.A."
+                                class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all" />
+                        </div>
+                    </div>
+
+                    <!-- Fila 2: Email + Teléfono -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                        <div class="flex flex-col gap-xs">
+                            <label for="email"
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+                                Correo electrónico <span class="text-error">*</span>
+                            </label>
+                            <input id="email" name="email" type="email" required placeholder="juan@empresa.com"
+                                class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all" />
+                            <span class="error-msg text-error text-xs hidden">Email válido requerido</span>
+                        </div>
+                        <div class="flex flex-col gap-xs">
+                            <label for="telefono"
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+                                Teléfono / WhatsApp
+                            </label>
+                            <input id="telefono" name="telefono" type="tel" placeholder="664 123 4567"
+                                class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all" />
+                        </div>
+                    </div>
+
+                    <!-- Fila 3: Servicio + Cantidad -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                        <div class="flex flex-col gap-xs">
+                            <label for="servicio"
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+                                Tipo de servicio <span class="text-error">*</span>
+                            </label>
+                            <select id="servicio" name="servicio" required
+                                class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all bg-white">
+                                <option value="" disabled selected>Selecciona un servicio</option>
+                                <option value="bordado-computarizado">Bordado computarizado</option>
+                                <option value="uniformes-corporativos">Uniformes corporativos</option>
+                                <option value="playeras-polo">Playeras / Polo</option>
+                                <option value="gorras">Gorras bordadas</option>
+                                <option value="chalecos-industriales">Chalecos industriales</option>
+                                <option value="paquete-completo">Paquete completo</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                            <span class="error-msg text-error text-xs hidden">Selecciona un servicio</span>
+                        </div>
+                        <div class="flex flex-col gap-xs">
+                            <label for="cantidad"
+                                class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+                                Cantidad aproximada
+                            </label>
+                            <input id="cantidad" name="cantidad" type="number" min="1" placeholder="50"
+                                class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all" />
+                        </div>
+                    </div>
+
+                    <!-- Mensaje -->
+                    <div class="flex flex-col gap-xs">
+                        <label for="mensaje"
+                            class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+                            Descripción del pedido
+                        </label>
+                        <textarea id="mensaje" name="mensaje" rows="4"
+                            placeholder="Cuéntanos más sobre tu proyecto: colores, diseño, telas preferidas, fecha de entrega..."
+                            class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all resize-none"></textarea>
+                    </div>
+
+                    <!-- Aviso de privacidad -->
+                    <p class="text-on-surface-variant text-xs">
+                        Al enviar este formulario aceptas nuestra
+                        <a href="#" class="text-secondary underline hover:text-secondary-container">Política de
+                            Privacidad</a>.
+                        Tus datos no serán compartidos con terceros.
+                    </p>
+
+                    <!-- Botón enviar -->
+                    <button id="btn-enviar" type="submit"
+                        class="w-full bg-secondary-container text-on-primary font-button text-button py-sm rounded-lg hover:bg-secondary transition-colors flex items-center justify-center gap-sm disabled:opacity-60 disabled:cursor-not-allowed">
+                        <span id="btn-texto">Enviar cotización</span>
+                        <span id="btn-spinner"
+                            class="hidden material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+                    </button>
+
+                </form>
+            </div>
+
+            <!-- Estado: Éxito -->
+            <div id="estado-exito" class="hidden p-md flex flex-col items-center text-center gap-md py-xl">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined fill text-green-600 text-[40px]">check_circle</span>
+                </div>
+                <div>
+                    <h3 class="font-h3 text-h3 text-on-surface">¡Cotización enviada!</h3>
+                    <p class="text-on-surface-variant mt-2">Recibimos tu solicitud. Te contactaremos en menos de 24
+                        horas hábiles.</p>
+                </div>
+                <button id="btn-nueva-cotizacion"
+                    class="bg-primary-container text-on-primary font-button text-button px-md py-sm rounded-lg hover:bg-primary transition-colors">
+                    Enviar otra cotización
+                </button>
+            </div>
+
+            <!-- Estado: Error -->
+            <div id="estado-error" class="hidden px-md pb-md">
+                <div class="bg-error-container text-on-error-container rounded-lg p-sm flex items-start gap-sm">
+                    <span class="material-symbols-outlined text-error">error</span>
+                    <div>
+                        <p class="font-semibold text-sm">Ocurrió un error al enviar</p>
+                        <p id="error-detalle" class="text-xs mt-1">Por favor intenta de nuevo o contáctanos por
+                            WhatsApp.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ===== FIN MODAL ===== -->
+
+
     <!-- 1. TopNavBar -->
     <nav
-        class="bg-primary-container dark:bg-primary-container text-on-primary dark:text-on-primary font-body-md text-body-md border-b border-secondary-container shadow-sm docked full-width top-0 sticky z-50">
+        class="bg-primary-container text-on-primary font-body-md text-body-md border-b border-secondary-container shadow-sm sticky top-0 z-50">
         <div class="flex justify-between items-center w-full px-md py-sm max-w-container-max mx-auto">
             <div class="flex items-center gap-sm">
                 <img alt="BordaXpress Logo" class="h-10 w-10 rounded-full bg-surface-container-lowest object-cover"
-                    data-alt="A clean, modern corporate logo for an embroidery company named 'BordaXpress'. The logo features a sophisticated interplay of navy blue and gold accents against a pristine white background. A subtle, elegant needle or stitching motif is incorporated into the flat vector design. The overall aesthetic is professional, sharp, and highly polished, suitable for a light-mode corporate identity."
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuARgkee2KmJJAUdTelWa7D5fmrF5BZM1UQ9h4iSw2s_hZlaxDXqBPtA9XMg0_i98H1p3TjoQgAMunniw89SLagJ9ib_ziLqdyTskXjygOFIrlaXhJ1UN6HR17ACnKoV0-yhhB-0Co7w6zG1nggyZnpVmfTKOlhqJ59SUlgT1cr3qUYj66RhDyORTU3dOdbgszmqJMs-YaNvVJbFUe70N9RsV7ntz0b-rCYuslqG1oL01ge6p6X5LOc3_oiM1-CZfARkG5UXaKRuv4A" />
                 <span class="font-h3 text-h3 font-bold text-on-primary">BordaXpress</span>
             </div>
             <div class="hidden md:flex items-center gap-md">
-                <a class="text-on-primary hover:text-secondary-container hover:bg-primary/10 transition-all px-xs py-xs rounded"
+                <a class="text-on-primary hover:text-secondary-container transition-all px-xs py-xs rounded"
                     href="#servicios">Servicios</a>
-                <a class="text-on-primary hover:text-secondary-container hover:bg-primary/10 transition-all px-xs py-xs rounded"
+                <a class="text-on-primary hover:text-secondary-container transition-all px-xs py-xs rounded"
                     href="#galeria">Galería</a>
-                <a class="text-on-primary hover:text-secondary-container hover:bg-primary/10 transition-all px-xs py-xs rounded"
+                <a class="text-on-primary hover:text-secondary-container transition-all px-xs py-xs rounded"
                     href="#como-funciona">¿Cómo funciona?</a>
-                <a class="text-on-primary hover:text-secondary-container hover:bg-primary/10 transition-all px-xs py-xs rounded"
+                <a class="text-on-primary hover:text-secondary-container transition-all px-xs py-xs rounded"
                     href="#clientes">Clientes</a>
-                <a class="text-on-primary hover:text-secondary-container hover:bg-primary/10 transition-all px-xs py-xs rounded"
+                <a class="text-on-primary hover:text-secondary-container transition-all px-xs py-xs rounded"
                     href="#contacto">Contacto</a>
             </div>
             <div class="flex items-center gap-md">
                 <div class="hidden lg:flex items-center gap-xs text-on-primary">
-                    <span class="material-symbols-outlined" data-icon="call">call</span>
+                    <span class="material-symbols-outlined">call</span>
                     <span class="font-label-sm text-label-sm">800-BORDADOS</span>
                 </div>
-                <button
-                    class="bg-secondary-container text-on-primary font-button text-button px-md py-sm rounded-lg hover:scale-95 transition-transform duration-200">Cotiza
-                    ahora</button>
+                <button id="btn-cotiza-nav"
+                    class="bg-secondary-container text-on-primary font-button text-button px-md py-sm rounded-lg hover:scale-95 transition-transform duration-200">
+                    Cotiza ahora
+                </button>
             </div>
         </div>
     </nav>
+
     <!-- 2. Hero -->
     <header class="relative bg-primary-container py-xl text-on-primary overflow-hidden">
         <div class="absolute inset-0 z-0">
             <div class="w-full h-full bg-cover bg-center opacity-30"
-                data-alt="A close-up, high-resolution macro shot of a complex, automated embroidery machine actively stitching a precise corporate logo onto a heavy-duty fabric. The lighting is dramatic yet professional, highlighting the texture of the threads and the gleaming metal of the needles. The scene is set in a modern, clean industrial environment. The color palette leans towards deep navy blues and industrial silvers, perfectly complementing a high-end corporate website aesthetic."
                 style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCpPEbIj__eya2ko8xHuiFgfnrXhYOmnAVcJ3PPPobB8FezAFDAKdWcb7o3lE619OY_LHsdX6XRP557_2ZZcQIsDBiMwO6QWe95LIk_0OfMVf5Ie8hL0NloH3B6mA8sKFFiMZzstfkviqKcuo3ODZ_uQzXtY_8CAjb19Ht-u0xUzZEnDaJUoasZpcFit0sy7yYaxCBXAO_uR4P8_oiKYA-S-4lh0AlepMgFzJIxTS87hz1JEaDgIozQXUil-USF3Fx7dBlRsSLzEJs');">
             </div>
             <div
@@ -165,17 +348,20 @@
             <div class="flex flex-col gap-lg">
                 <div class="flex flex-col gap-md">
                     <h1 class="font-h1 text-h1 text-on-primary">Uniformes y bordados que dan imagen a tu empresa</h1>
-                    <p class="font-body-lg text-body-lg text-inverse-primary max-w-lg">Bordado computarizado de alta
-                        precisión con entregas express. Elevamos la presentación de tu equipo con estándares
-                        industriales.</p>
+                    <p class="font-body-lg text-body-lg text-inverse-primary max-w-lg">
+                        Bordado computarizado de alta precisión con entregas express. Elevamos la presentación de tu
+                        equipo con estándares industriales.
+                    </p>
                 </div>
                 <div class="flex flex-wrap gap-md">
+                    <button id="btn-cotiza-hero"
+                        class="bg-secondary-container text-on-primary font-button text-button px-md py-sm rounded-lg hover:bg-secondary transition-colors">
+                        Solicitar cotización gratis
+                    </button>
                     <button
-                        class="bg-secondary-container text-on-primary font-button text-button px-md py-sm rounded-lg hover:bg-secondary transition-colors">Solicitar
-                        cotización gratis</button>
-                    <button
-                        class="border-2 border-on-primary text-on-primary font-button text-button px-md py-sm rounded-lg hover:bg-on-primary/10 transition-colors">Ver
-                        galería</button>
+                        class="border-2 border-on-primary text-on-primary font-button text-button px-md py-sm rounded-lg hover:bg-on-primary/10 transition-colors">
+                        Ver galería
+                    </button>
                 </div>
             </div>
         </div>
@@ -183,33 +369,31 @@
         <div class="relative z-10 w-full bg-primary/40 backdrop-blur-sm border-t border-secondary-container/30 mt-xl">
             <div class="max-w-container-max mx-auto px-md py-md flex flex-wrap justify-between items-center gap-md">
                 <div class="flex items-center gap-sm text-secondary-fixed">
-                    <span class="material-symbols-outlined fill text-h2" data-icon="military_tech">military_tech</span>
+                    <span class="material-symbols-outlined fill text-h2">military_tech</span>
                     <span class="font-label-sm text-label-sm uppercase tracking-wider">10+ años</span>
                 </div>
                 <div class="flex items-center gap-sm text-secondary-fixed">
-                    <span class="material-symbols-outlined fill text-h2" data-icon="groups">groups</span>
+                    <span class="material-symbols-outlined fill text-h2">groups</span>
                     <span class="font-label-sm text-label-sm uppercase tracking-wider">+5,000 clientes</span>
                 </div>
                 <div class="flex items-center gap-sm text-secondary-fixed">
-                    <span class="material-symbols-outlined fill text-h2"
-                        data-icon="local_shipping">local_shipping</span>
+                    <span class="material-symbols-outlined fill text-h2">local_shipping</span>
                     <span class="font-label-sm text-label-sm uppercase tracking-wider">Entregas 24-72 hrs</span>
                 </div>
                 <div class="flex items-center gap-sm text-secondary-fixed">
-                    <span class="material-symbols-outlined fill text-h2" data-icon="storefront">storefront</span>
+                    <span class="material-symbols-outlined fill text-h2">storefront</span>
                     <span class="font-label-sm text-label-sm uppercase tracking-wider">3 Sucursales</span>
                 </div>
             </div>
         </div>
     </header>
+
     <!-- 13. Footer -->
-    <footer
-        class="bg-primary dark:bg-tertiary-container text-on-primary dark:text-on-tertiary-container font-body-md text-body-md full-width">
+    <footer class="bg-primary text-on-primary font-body-md text-body-md">
         <div
             class="flex flex-col md:flex-row justify-between items-center w-full px-md py-lg max-w-container-max mx-auto border-b border-primary-container/20">
             <div class="flex items-center gap-sm mb-md md:mb-0">
                 <img alt="BordaXpress Logo" class="h-12 w-12 rounded-full bg-surface-container-lowest object-cover"
-                    data-alt="A clean, modern corporate logo for an embroidery company named 'BordaXpress'. The logo features a sophisticated interplay of navy blue and gold accents against a pristine white background. A subtle, elegant needle or stitching motif is incorporated into the flat vector design. The overall aesthetic is professional, sharp, and highly polished, suitable for a light-mode corporate identity."
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuARgkee2KmJJAUdTelWa7D5fmrF5BZM1UQ9h4iSw2s_hZlaxDXqBPtA9XMg0_i98H1p3TjoQgAMunniw89SLagJ9ib_ziLqdyTskXjygOFIrlaXhJ1UN6HR17ACnKoV0-yhhB-0Co7w6zG1nggyZnpVmfTKOlhqJ59SUlgT1cr3qUYj66RhDyORTU3dOdbgszmqJMs-YaNvVJbFUe70N9RsV7ntz0b-rCYuslqG1oL01ge6p6X5LOc3_oiM1-CZfARkG5UXaKRuv4A" />
                 <span class="font-h3 text-h3 font-bold text-secondary-container">BordaXpress</span>
             </div>
@@ -230,11 +414,152 @@
             © 2024 BordaXpress Industrial. Calidad y precisión en cada puntada.
         </div>
     </footer>
-    <!-- FAB -->
+
+    <!-- FAB WhatsApp -->
     <button aria-label="Contactar por WhatsApp"
         class="fixed bottom-lg right-lg bg-[#25D366] text-white p-sm rounded-full shadow-lg hover:scale-110 transition-transform z-50 flex items-center justify-center h-14 w-14">
-        <span class="material-symbols-outlined text-[32px]" data-icon="forum">forum</span>
+        <span class="material-symbols-outlined text-[32px]">forum</span>
     </button>
+
+    <!-- ===== JAVASCRIPT: MODAL + SUPABASE ===== -->
+    <script>
+        // --- Referencias al DOM ---
+        const modal = document.getElementById('modal-cotizacion');
+        const modalBox = document.getElementById('modal-box');
+        const formWrapper = document.getElementById('form-wrapper');
+        const form = document.getElementById('form-cotizacion');
+        const estadoExito = document.getElementById('estado-exito');
+        const estadoError = document.getElementById('estado-error');
+        const errorDetalle = document.getElementById('error-detalle');
+        const btnEnviar = document.getElementById('btn-enviar');
+        const btnTexto = document.getElementById('btn-texto');
+        const btnSpinner = document.getElementById('btn-spinner');
+
+        // --- Abrir modal ---
+        function abrirModal() {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            // Animación de entrada
+            modalBox.style.transform = 'scale(0.95)';
+            modalBox.style.opacity = '0';
+            requestAnimationFrame(() => {
+                modalBox.style.transform = 'scale(1)';
+                modalBox.style.opacity = '1';
+            });
+        }
+
+        // --- Cerrar modal ---
+        function cerrarModal() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Botones que abren el modal
+        document.getElementById('btn-cotiza-nav').addEventListener('click', abrirModal);
+        document.getElementById('btn-cotiza-hero').addEventListener('click', abrirModal);
+
+        // Cerrar con el botón X
+        document.getElementById('btn-cerrar-modal').addEventListener('click', cerrarModal);
+
+        // Cerrar haciendo clic fuera del modal
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) cerrarModal();
+        });
+
+        // Cerrar con tecla Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') cerrarModal();
+        });
+
+        // Botón "Enviar otra cotización"
+        document.getElementById('btn-nueva-cotizacion').addEventListener('click', () => {
+            form.reset();
+            estadoExito.classList.add('hidden');
+            estadoError.classList.add('hidden');
+            formWrapper.style.display = '';
+        });
+
+        // --- Validación simple ---
+        function validarCampo(input) {
+            const errorMsg = input.parentElement.querySelector('.error-msg');
+            let valido = true;
+
+            if (input.hasAttribute('required') && !input.value.trim()) {
+                valido = false;
+            }
+            if (input.type === 'email' && input.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
+                valido = false;
+            }
+
+            if (errorMsg) {
+                errorMsg.classList.toggle('hidden', valido);
+            }
+            input.classList.toggle('border-error', !valido);
+            input.classList.toggle('border-outline', valido);
+
+            return valido;
+        }
+
+        // Validar en tiempo real al salir de cada campo
+        form.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('blur', () => validarCampo(el));
+        });
+
+        // --- Envío del formulario a Supabase ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validar todos los campos requeridos
+            const requeridos = form.querySelectorAll('[required]');
+            let todosValidos = true;
+            requeridos.forEach(campo => {
+                if (!validarCampo(campo)) todosValidos = false;
+            });
+            if (!todosValidos) return;
+
+            // Mostrar spinner
+            btnEnviar.disabled = true;
+            btnTexto.textContent = 'Enviando...';
+            btnSpinner.classList.remove('hidden');
+            estadoError.classList.add('hidden');
+
+            // Construir el objeto con los datos
+            const datos = {
+                nombre: document.getElementById('nombre').value.trim(),
+                empresa: document.getElementById('empresa').value.trim() || null,
+                email: document.getElementById('email').value.trim(),
+                telefono: document.getElementById('telefono').value.trim() || null,
+                servicio: document.getElementById('servicio').value || null,
+                cantidad: document.getElementById('cantidad').value ? parseInt(document.getElementById('cantidad').value) : null,
+                mensaje: document.getElementById('mensaje').value.trim() || null,
+            };
+
+            try {
+                // Verificar que las credenciales estén configuradas
+                if (SUPABASE_URL === 'PEGA_TU_PROJECT_URL_AQUÍ') {
+                    throw new Error('Configura tus credenciales de Supabase en el archivo index.html (sigue la GUIA_SUPABASE.md)');
+                }
+
+                const { error } = await db.from('cotizaciones').insert([datos]);
+
+                if (error) throw error;
+
+                // Mostrar éxito
+                formWrapper.style.display = 'none';
+                estadoExito.classList.remove('hidden');
+
+            } catch (err) {
+                console.error('Error Supabase:', err);
+                errorDetalle.textContent = err.message || 'Error desconocido. Intenta de nuevo.';
+                estadoError.classList.remove('hidden');
+            } finally {
+                btnEnviar.disabled = false;
+                btnTexto.textContent = 'Enviar cotización';
+                btnSpinner.classList.add('hidden');
+            }
+        });
+    </script>
+
 </body>
 
 </html>
