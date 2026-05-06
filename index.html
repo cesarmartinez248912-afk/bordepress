@@ -111,15 +111,6 @@
                         "body-md": ["Inter"],
                         "h1": ["Work Sans"],
                         "label-sm": ["Inter"]
-                    },
-                    fontSize: {
-                        "body-lg": ["18px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
-                        "button": ["16px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "600" }],
-                        "h2": ["36px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
-                        "h3": ["24px", { "lineHeight": "1.3", "letterSpacing": "0", "fontWeight": "600" }],
-                        "body-md": ["16px", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }],
-                        "h1": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
-                        "label-sm": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }]
                     }
                 }
             }
@@ -131,7 +122,6 @@
 
     <!-- =============================================
          🔧 CONFIGURACIÓN SUPABASE
-         Reemplaza los valores con los tuyos del Paso 4
          ============================================= -->
     <script>
         const SUPABASE_URL = 'https://mqocxeexisyrfkrhgdam.supabase.co';
@@ -152,8 +142,8 @@
             <!-- Header del modal -->
             <div class="bg-primary-container px-md py-sm flex items-center justify-between sticky top-0 z-10">
                 <div>
-                    <h2 id="modal-titulo" class="font-h3 text-h3 text-on-primary">Solicitar cotización gratis</h2>
-                    <p class="text-inverse-primary text-sm mt-1">Te respondemos en menos de 24 horas</p>
+                    <h2 id="modal-titulo" class="font-h3 text-h3 text-on-primary">Solicitar cotización formal</h2>
+                    <p class="text-inverse-primary text-sm mt-1">Recibirá una respuesta a la brevedad posible</p>
                 </div>
                 <button id="btn-cerrar-modal"
                     class="text-on-primary hover:text-secondary-container transition-colors p-1 rounded-lg"
@@ -166,49 +156,47 @@
             <div id="form-wrapper" class="p-md">
                 <form id="form-cotizacion" novalidate class="flex flex-col gap-md">
 
-                    <!-- Fila 1: Nombre + Empresa -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
                         <div class="flex flex-col gap-xs">
                             <label for="nombre"
                                 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
                                 Nombre completo <span class="text-error">*</span>
                             </label>
-                            <input id="nombre" name="nombre" type="text" required placeholder="Juan García"
+                            <input id="nombre" name="nombre" type="text" required placeholder="Nombre y Apellido"
                                 class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all" />
-                            <span class="error-msg text-error text-xs hidden">Campo requerido</span>
+                            <span class="error-msg text-error text-xs hidden">Este campo es requerido</span>
                         </div>
                         <div class="flex flex-col gap-xs">
                             <label for="empresa"
                                 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
                                 Empresa / Organización
                             </label>
-                            <input id="empresa" name="empresa" type="text" placeholder="Mi Empresa S.A."
+                            <input id="empresa" name="empresa" type="text" placeholder="Razón social"
                                 class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all" />
                         </div>
                     </div>
 
-                    <!-- Fila 2: Email + Teléfono -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
                         <div class="flex flex-col gap-xs">
                             <label for="email"
                                 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
                                 Correo electrónico <span class="text-error">*</span>
                             </label>
-                            <input id="email" name="email" type="email" required placeholder="juan@empresa.com"
+                            <input id="email" name="email" type="email" required placeholder="correo@institucion.com"
                                 class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all" />
-                            <span class="error-msg text-error text-xs hidden">Email válido requerido</span>
+                            <span class="error-msg text-error text-xs hidden">Se requiere un formato de correo
+                                válido</span>
                         </div>
                         <div class="flex flex-col gap-xs">
                             <label for="telefono"
                                 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
-                                Teléfono / WhatsApp
+                                Teléfono de contacto
                             </label>
-                            <input id="telefono" name="telefono" type="tel" placeholder="664 123 4567"
+                            <input id="telefono" name="telefono" type="tel" placeholder="Lada + Número"
                                 class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all" />
                         </div>
                     </div>
 
-                    <!-- Fila 3: Servicio + Cantidad -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
                         <div class="flex flex-col gap-xs">
                             <label for="servicio"
@@ -217,7 +205,7 @@
                             </label>
                             <select id="servicio" name="servicio" required
                                 class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all bg-white">
-                                <option value="" disabled selected>Selecciona un servicio</option>
+                                <option value="" disabled selected>Seleccione el servicio deseado</option>
                                 <option value="bordado-computarizado">Bordado computarizado</option>
                                 <option value="uniformes-corporativos">Uniformes corporativos</option>
                                 <option value="playeras-polo">Playeras / Polo</option>
@@ -226,41 +214,58 @@
                                 <option value="paquete-completo">Paquete completo</option>
                                 <option value="otro">Otro</option>
                             </select>
-                            <span class="error-msg text-error text-xs hidden">Selecciona un servicio</span>
+                            <span class="error-msg text-error text-xs hidden">Por favor, seleccione un servicio</span>
+
+                            <!-- ===== SECCIÓN DE AVISO DE INVENTARIO ===== -->
+                            <div id="aviso-inventario"
+                                class="hidden mt-2 p-sm bg-secondary-fixed-dim text-on-secondary-fixed rounded-lg border border-secondary text-sm">
+                                <div class="flex items-start gap-sm">
+                                    <span class="material-symbols-outlined text-secondary text-[24px]">info</span>
+                                    <div class="flex flex-col gap-xs">
+                                        <p class="font-bold text-sm">Aviso de disponibilidad</p>
+                                        <p id="texto-aviso-inventario" class="text-xs"></p>
+                                        <label class="flex items-center gap-xs mt-2 cursor-pointer">
+                                            <input type="checkbox" id="confirmar-espera"
+                                                class="rounded border-outline text-primary focus:ring-primary-container">
+                                            <span class="text-xs font-semibold">Comprendo la situación de disponibilidad
+                                                y deseo continuar con la cotización.</span>
+                                        </label>
+                                        <span id="error-confirmacion" class="text-error text-xs hidden">Debe aceptar la
+                                            confirmación para proceder.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ========================================== -->
                         </div>
                         <div class="flex flex-col gap-xs">
                             <label for="cantidad"
                                 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
-                                Cantidad aproximada
+                                Cantidad requerida
                             </label>
-                            <input id="cantidad" name="cantidad" type="number" min="1" placeholder="50"
+                            <input id="cantidad" name="cantidad" type="number" min="1" placeholder="Ej. 50"
                                 class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all" />
                         </div>
                     </div>
 
-                    <!-- Mensaje -->
                     <div class="flex flex-col gap-xs">
                         <label for="mensaje"
                             class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
-                            Descripción del pedido
+                            Especificaciones adicionales
                         </label>
                         <textarea id="mensaje" name="mensaje" rows="4"
-                            placeholder="Cuéntanos más sobre tu proyecto: colores, diseño, telas preferidas, fecha de entrega..."
+                            placeholder="Detalle las especificaciones requeridas para su solicitud..."
                             class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all resize-none"></textarea>
                     </div>
 
-                    <!-- Aviso de privacidad -->
                     <p class="text-on-surface-variant text-xs">
-                        Al enviar este formulario aceptas nuestra
-                        <a href="#" class="text-secondary underline hover:text-secondary-container">Política de
-                            Privacidad</a>.
-                        Tus datos no serán compartidos con terceros.
+                        Al enviar este formulario acepta los
+                        <a href="#" class="text-secondary underline hover:text-secondary-container">Términos y
+                            Condiciones</a>.
                     </p>
 
-                    <!-- Botón enviar -->
                     <button id="btn-enviar" type="submit"
                         class="w-full bg-secondary-container text-on-primary font-button text-button py-sm rounded-lg hover:bg-secondary transition-colors flex items-center justify-center gap-sm disabled:opacity-60 disabled:cursor-not-allowed">
-                        <span id="btn-texto">Enviar cotización</span>
+                        <span id="btn-texto">Procesar cotización</span>
                         <span id="btn-spinner"
                             class="hidden material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
                     </button>
@@ -268,30 +273,27 @@
                 </form>
             </div>
 
-            <!-- Estado: Éxito -->
             <div id="estado-exito" class="hidden p-md flex flex-col items-center text-center gap-md py-xl">
                 <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
                     <span class="material-symbols-outlined fill text-green-600 text-[40px]">check_circle</span>
                 </div>
                 <div>
-                    <h3 class="font-h3 text-h3 text-on-surface">¡Cotización enviada!</h3>
-                    <p class="text-on-surface-variant mt-2">Recibimos tu solicitud. Te contactaremos en menos de 24
-                        horas hábiles.</p>
+                    <h3 class="font-h3 text-h3 text-on-surface">Solicitud registrada exitosamente</h3>
+                    <p class="text-on-surface-variant mt-2">Un asesor se pondrá en contacto con usted a la brevedad.</p>
                 </div>
                 <button id="btn-nueva-cotizacion"
                     class="bg-primary-container text-on-primary font-button text-button px-md py-sm rounded-lg hover:bg-primary transition-colors">
-                    Enviar otra cotización
+                    Registrar nueva solicitud
                 </button>
             </div>
 
-            <!-- Estado: Error -->
             <div id="estado-error" class="hidden px-md pb-md">
                 <div class="bg-error-container text-on-error-container rounded-lg p-sm flex items-start gap-sm">
                     <span class="material-symbols-outlined text-error">error</span>
                     <div>
-                        <p class="font-semibold text-sm">Ocurrió un error al enviar</p>
-                        <p id="error-detalle" class="text-xs mt-1">Por favor intenta de nuevo o contáctanos por
-                            WhatsApp.</p>
+                        <p class="font-semibold text-sm">Se ha producido un inconveniente</p>
+                        <p id="error-detalle" class="text-xs mt-1">Verifique su conexión o intente nuevamente más tarde.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -299,8 +301,7 @@
     </div>
     <!-- ===== FIN MODAL ===== -->
 
-
-    <!-- 1. TopNavBar -->
+    <!-- TopNavBar -->
     <nav
         class="bg-primary-container text-on-primary font-body-md text-body-md border-b border-secondary-container shadow-sm sticky top-0 z-50">
         <div class="flex justify-between items-center w-full px-md py-sm max-w-container-max mx-auto">
@@ -313,28 +314,24 @@
                 <a class="text-on-primary hover:text-secondary-container transition-all px-xs py-xs rounded"
                     href="#servicios">Servicios</a>
                 <a class="text-on-primary hover:text-secondary-container transition-all px-xs py-xs rounded"
-                    href="#galeria">Galería</a>
-                <a class="text-on-primary hover:text-secondary-container transition-all px-xs py-xs rounded"
-                    href="#como-funciona">¿Cómo funciona?</a>
-                <a class="text-on-primary hover:text-secondary-container transition-all px-xs py-xs rounded"
-                    href="#clientes">Clientes</a>
-                <a class="text-on-primary hover:text-secondary-container transition-all px-xs py-xs rounded"
                     href="#contacto">Contacto</a>
             </div>
             <div class="flex items-center gap-md">
-                <div class="hidden lg:flex items-center gap-xs text-on-primary">
+                <!-- Teléfono con hipervínculo funcional -->
+                <a href="tel:8002673236"
+                    class="hidden lg:flex items-center gap-xs text-on-primary hover:text-secondary-container transition-colors cursor-pointer">
                     <span class="material-symbols-outlined">call</span>
                     <span class="font-label-sm text-label-sm">800-BORDADOS</span>
-                </div>
+                </a>
                 <button id="btn-cotiza-nav"
                     class="bg-secondary-container text-on-primary font-button text-button px-md py-sm rounded-lg hover:scale-95 transition-transform duration-200">
-                    Cotiza ahora
+                    Cotizar ahora
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- 2. Hero -->
+    <!-- Hero Section -->
     <header class="relative bg-primary-container py-xl text-on-primary overflow-hidden">
         <div class="absolute inset-0 z-0">
             <div class="w-full h-full bg-cover bg-center opacity-30"
@@ -347,49 +344,24 @@
         <div class="relative z-10 max-w-container-max mx-auto px-md grid md:grid-cols-2 gap-xl items-center">
             <div class="flex flex-col gap-lg">
                 <div class="flex flex-col gap-md">
-                    <h1 class="font-h1 text-h1 text-on-primary">Uniformes y bordados que dan imagen a tu empresa</h1>
+                    <h1 class="font-h1 text-h1 text-on-primary">Soluciones textiles corporativas</h1>
                     <p class="font-body-lg text-body-lg text-inverse-primary max-w-lg">
-                        Bordado computarizado de alta precisión con entregas express. Elevamos la presentación de tu
-                        equipo con estándares industriales.
+                        Bordado computarizado de alta precisión. Elevamos la presentación de su institución mediante
+                        estándares de calidad industrial.
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-md">
                     <button id="btn-cotiza-hero"
                         class="bg-secondary-container text-on-primary font-button text-button px-md py-sm rounded-lg hover:bg-secondary transition-colors">
-                        Solicitar cotización gratis
+                        Solicitar propuesta comercial
                     </button>
-                    <button
-                        class="border-2 border-on-primary text-on-primary font-button text-button px-md py-sm rounded-lg hover:bg-on-primary/10 transition-colors">
-                        Ver galería
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- Trust Bar -->
-        <div class="relative z-10 w-full bg-primary/40 backdrop-blur-sm border-t border-secondary-container/30 mt-xl">
-            <div class="max-w-container-max mx-auto px-md py-md flex flex-wrap justify-between items-center gap-md">
-                <div class="flex items-center gap-sm text-secondary-fixed">
-                    <span class="material-symbols-outlined fill text-h2">military_tech</span>
-                    <span class="font-label-sm text-label-sm uppercase tracking-wider">10+ años</span>
-                </div>
-                <div class="flex items-center gap-sm text-secondary-fixed">
-                    <span class="material-symbols-outlined fill text-h2">groups</span>
-                    <span class="font-label-sm text-label-sm uppercase tracking-wider">+5,000 clientes</span>
-                </div>
-                <div class="flex items-center gap-sm text-secondary-fixed">
-                    <span class="material-symbols-outlined fill text-h2">local_shipping</span>
-                    <span class="font-label-sm text-label-sm uppercase tracking-wider">Entregas 24-72 hrs</span>
-                </div>
-                <div class="flex items-center gap-sm text-secondary-fixed">
-                    <span class="material-symbols-outlined fill text-h2">storefront</span>
-                    <span class="font-label-sm text-label-sm uppercase tracking-wider">3 Sucursales</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- 13. Footer -->
-    <footer class="bg-primary text-on-primary font-body-md text-body-md">
+    <!-- Footer -->
+    <footer class="bg-primary text-on-primary font-body-md text-body-md mt-xl">
         <div
             class="flex flex-col md:flex-row justify-between items-center w-full px-md py-lg max-w-container-max mx-auto border-b border-primary-container/20">
             <div class="flex items-center gap-sm mb-md md:mb-0">
@@ -399,31 +371,27 @@
             </div>
             <div class="flex flex-wrap justify-center gap-md">
                 <a class="text-on-primary-fixed-variant hover:text-secondary-container hover:underline transition-all"
-                    href="#">Servicios</a>
-                <a class="text-on-primary-fixed-variant hover:text-secondary-container hover:underline transition-all"
-                    href="#">Galería</a>
-                <a class="text-on-primary-fixed-variant hover:text-secondary-container hover:underline transition-all"
                     href="#">Aviso de Privacidad</a>
                 <a class="text-on-primary-fixed-variant hover:text-secondary-container hover:underline transition-all"
                     href="#">Términos y Condiciones</a>
+                <!-- Teléfono en el footer -->
                 <a class="text-on-primary-fixed-variant hover:text-secondary-container hover:underline transition-all"
-                    href="#">Contacto</a>
+                    href="tel:8002673236">Atención a clientes</a>
             </div>
         </div>
         <div class="text-center py-md text-on-primary-fixed-variant font-label-sm text-label-sm bg-primary/90">
-            © 2024 BordaXpress Industrial. Calidad y precisión en cada puntada.
+            © 2024 BordaXpress Industrial. Calidad y precisión garantizada.
         </div>
     </footer>
 
-    <!-- FAB WhatsApp -->
-    <button aria-label="Contactar por WhatsApp"
+    <!-- Botón Flotante WhatsApp Activo -->
+    <a href="https://wa.me/521234567890" target="_blank" aria-label="Contactar por WhatsApp"
         class="fixed bottom-lg right-lg bg-[#25D366] text-white p-sm rounded-full shadow-lg hover:scale-110 transition-transform z-50 flex items-center justify-center h-14 w-14">
         <span class="material-symbols-outlined text-[32px]">forum</span>
-    </button>
+    </a>
 
-    <!-- ===== JAVASCRIPT: MODAL + SUPABASE ===== -->
+    <!-- ===== JAVASCRIPT: LOGICA DEL FORMULARIO Y BASE DE DATOS ===== -->
     <script>
-        // --- Referencias al DOM ---
         const modal = document.getElementById('modal-cotizacion');
         const modalBox = document.getElementById('modal-box');
         const formWrapper = document.getElementById('form-wrapper');
@@ -435,11 +403,33 @@
         const btnTexto = document.getElementById('btn-texto');
         const btnSpinner = document.getElementById('btn-spinner');
 
-        // --- Abrir modal ---
+        // Elementos para el inventario
+        const servicioSelect = document.getElementById('servicio');
+        const avisoInventario = document.getElementById('aviso-inventario');
+        const textoAvisoInventario = document.getElementById('texto-aviso-inventario');
+        const confirmarEspera = document.getElementById('confirmar-espera');
+        const errorConfirmacion = document.getElementById('error-confirmacion');
+
+        let inventarioDatos = [];
+
+        // 1. Cargar inventario desde Supabase
+        async function inicializarInventario() {
+            try {
+                const { data, error } = await db.from('inventario').select('*').eq('activo', true);
+                if (!error && data) {
+                    inventarioDatos = data;
+                }
+            } catch (err) {
+                console.error('Error durante la sincronización del inventario:', err);
+            }
+        }
+
+        // Ejecutar carga al iniciar
+        inicializarInventario();
+
         function abrirModal() {
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-            // Animación de entrada
             modalBox.style.transform = 'scale(0.95)';
             modalBox.style.opacity = '0';
             requestAnimationFrame(() => {
@@ -448,38 +438,48 @@
             });
         }
 
-        // --- Cerrar modal ---
         function cerrarModal() {
             modal.classList.add('hidden');
             document.body.style.overflow = '';
         }
 
-        // Botones que abren el modal
         document.getElementById('btn-cotiza-nav').addEventListener('click', abrirModal);
         document.getElementById('btn-cotiza-hero').addEventListener('click', abrirModal);
-
-        // Cerrar con el botón X
         document.getElementById('btn-cerrar-modal').addEventListener('click', cerrarModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) cerrarModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarModal(); });
 
-        // Cerrar haciendo clic fuera del modal
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) cerrarModal();
-        });
-
-        // Cerrar con tecla Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') cerrarModal();
-        });
-
-        // Botón "Enviar otra cotización"
         document.getElementById('btn-nueva-cotizacion').addEventListener('click', () => {
             form.reset();
             estadoExito.classList.add('hidden');
             estadoError.classList.add('hidden');
+            avisoInventario.classList.add('hidden');
             formWrapper.style.display = '';
         });
 
-        // --- Validación simple ---
+        // 2. Escuchar la selección del producto para verificar disponibilidad
+        servicioSelect.addEventListener('change', (e) => {
+            const seleccionado = e.target.value;
+            const articulo = inventarioDatos.find(i => i.servicio_id === seleccionado);
+
+            // Validar si está agotado, bajo o no disponible
+            if (articulo && (!articulo.disponible || articulo.stock === 'bajo' || articulo.stock === 'agotado')) {
+                const estadoInventario = articulo.stock.toUpperCase();
+                const tiempoAgregado = articulo.tiempo_estimado ? `<br><strong>Tiempo estimado:</strong> ${articulo.tiempo_estimado}.` : '';
+
+                textoAvisoInventario.innerHTML = `El servicio solicitado presenta un estatus de inventario: <strong>${estadoInventario}</strong>. ${tiempoAgregado}`;
+                avisoInventario.classList.remove('hidden');
+
+                // Hacer obligatoria la casilla de confirmación
+                confirmarEspera.required = true;
+            } else {
+                avisoInventario.classList.add('hidden');
+                confirmarEspera.required = false;
+                confirmarEspera.checked = false;
+                errorConfirmacion.classList.add('hidden');
+            }
+        });
+
         function validarCampo(input) {
             const errorMsg = input.parentElement.querySelector('.error-msg');
             let valido = true;
@@ -500,30 +500,34 @@
             return valido;
         }
 
-        // Validar en tiempo real al salir de cada campo
         form.querySelectorAll('input, select, textarea').forEach(el => {
             el.addEventListener('blur', () => validarCampo(el));
         });
 
-        // --- Envío del formulario a Supabase ---
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Validar todos los campos requeridos
-            const requeridos = form.querySelectorAll('[required]');
+            const requeridos = form.querySelectorAll('input[required]:not([type="checkbox"]), select[required]');
             let todosValidos = true;
             requeridos.forEach(campo => {
                 if (!validarCampo(campo)) todosValidos = false;
             });
+
+            // 3. Validar la casilla de confirmación si está visible/requerida
+            if (confirmarEspera.required && !confirmarEspera.checked) {
+                errorConfirmacion.classList.remove('hidden');
+                todosValidos = false;
+            } else {
+                errorConfirmacion.classList.add('hidden');
+            }
+
             if (!todosValidos) return;
 
-            // Mostrar spinner
             btnEnviar.disabled = true;
-            btnTexto.textContent = 'Enviando...';
+            btnTexto.textContent = 'Procesando...';
             btnSpinner.classList.remove('hidden');
             estadoError.classList.add('hidden');
 
-            // Construir el objeto con los datos
             const datos = {
                 nombre: document.getElementById('nombre').value.trim(),
                 empresa: document.getElementById('empresa').value.trim() || null,
@@ -535,31 +539,28 @@
             };
 
             try {
-                // Verificar que las credenciales estén configuradas
                 if (SUPABASE_URL === 'PEGA_TU_PROJECT_URL_AQUÍ') {
-                    throw new Error('Configura tus credenciales de Supabase en el archivo index.html (sigue la GUIA_SUPABASE.md)');
+                    throw new Error('Las credenciales de configuración no han sido provistas.');
                 }
 
                 const { error } = await db.from('cotizaciones').insert([datos]);
 
                 if (error) throw error;
 
-                // Mostrar éxito
                 formWrapper.style.display = 'none';
                 estadoExito.classList.remove('hidden');
 
             } catch (err) {
-                console.error('Error Supabase:', err);
-                errorDetalle.textContent = err.message || 'Error desconocido. Intenta de nuevo.';
+                console.error('Error de comunicación:', err);
+                errorDetalle.textContent = err.message || 'Error técnico. Por favor intente más tarde.';
                 estadoError.classList.remove('hidden');
             } finally {
                 btnEnviar.disabled = false;
-                btnTexto.textContent = 'Enviar cotización';
+                btnTexto.textContent = 'Procesar cotización';
                 btnSpinner.classList.add('hidden');
             }
         });
     </script>
-
 </body>
 
 </html>
