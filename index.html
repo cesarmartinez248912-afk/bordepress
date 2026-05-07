@@ -221,14 +221,7 @@
                             </label>
                             <select id="servicio" name="servicio" required
                                 class="border border-outline rounded-lg px-sm py-xs text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all bg-white">
-                                <option value="" disabled selected>Selecciona un servicio</option>
-                                <option value="bordado-computarizado">Bordado computarizado</option>
-                                <option value="uniformes-corporativos">Uniformes corporativos</option>
-                                <option value="playeras-polo">Playeras / Polo</option>
-                                <option value="gorras">Gorras bordadas</option>
-                                <option value="chalecos-industriales">Chalecos industriales</option>
-                                <option value="paquete-completo">Paquete completo</option>
-                                <option value="otro">Otro</option>
+                                <option value="" disabled selected>Cargando productos...</option>
                             </select>
                             <span class="error-msg text-error text-xs hidden">Selecciona un servicio</span>
 
@@ -487,36 +480,87 @@
         const checkboxConfirmar = document.getElementById('confirmar-inventario');
         const errorConfirmacion = document.getElementById('error-confirmacion-inventario');
 
-        // Datos de inventario (Mockup local para asegurar funcionalidad frontal en caso de error en base de datos)
-        const inventarioBD = [
-            { id: 'bordado-computarizado', stock: 'alto', disponible: true, tiempo: '' },
-            { id: 'uniformes-corporativos', stock: 'medio', disponible: true, tiempo: '5 a 7 días hábiles adicionales' },
-            { id: 'playeras-polo', stock: 'alto', disponible: true, tiempo: '' },
-            { id: 'gorras', stock: 'agotado', disponible: false, tiempo: '2 a 3 semanas aproximadamente' },
-            { id: 'chalecos-industriales', stock: 'bajo', disponible: false, tiempo: '1 a 2 semanas adicionales' },
-            { id: 'paquete-completo', stock: 'medio', disponible: true, tiempo: '3 a 5 días hábiles adicionales' },
-            { id: 'otro', stock: 'alto', disponible: true, tiempo: '' }
+        // Datos de inventario fallback (en caso de error de conexión)
+        const inventarioFallback = [
+            { id: 'Bordado computarizado', stock: 'alto', disponible: true, tiempo: '' },
+            { id: 'Uniformes corporativos', stock: 'medio', disponible: true, tiempo: '5 a 7 días hábiles adicionales' },
+            { id: 'Playeras / Polo', stock: 'alto', disponible: true, tiempo: '' },
+            { id: 'Gorras bordadas', stock: 'agotado', disponible: false, tiempo: '2 a 3 semanas aproximadamente' },
+            { id: 'Chalecos industriales', stock: 'bajo', disponible: false, tiempo: '1 a 2 semanas adicionales' },
+            { id: 'Paquete completo', stock: 'medio', disponible: true, tiempo: '3 a 5 días hábiles adicionales' },
+            { id: 'Otro', stock: 'alto', disponible: true, tiempo: '' }
         ];
 
-        let inventarioActualizado = [...inventarioBD];
+        let inventarioActualizado = [...inventarioFallback];
 
-        // Intento de cargar datos reales desde Supabase si la conexión está activa
-        async function cargarInventarioReal() {
+        // ── Convierte stock numérico a nivel de texto ──────────────────────
+        function nivelStock(n) {
+            if (n === 0) return 'agotado';
+            if (n <= 5) return 'bajo';
+            if (n <= 20) return 'medio';
+            return 'alto';
+        }
+
+        // ── Carga productos REALES desde la tabla `productos` ──────────────
+        async function cargarProductosDinamicos() {
+            const select = servicioSelect;
             try {
-                const { data, error } = await db.from('inventario').select('*').eq('activo', true);
-                if (!error && data && data.length > 0) {
-                    inventarioActualizado = data.map(item => ({
-                        id: item.servicio_id,
-                        stock: item.stock,
-                        disponible: item.disponible,
-                        tiempo: item.tiempo_estimado
-                    }));
-                }
+                const { data, error } = await db
+                    .from('productos')
+                    .select('id, nombre, stock, descripcion')
+                    .order('nombre', { ascending: true });
+
+                if (error || !data || data.length === 0) throw new Error('Sin datos');
+
+                // Limpiar y repoblar el select
+                select.innerHTML = '<option value="" disabled selected>Selecciona un producto/servicio</option>';
+
+                data.forEach(prod => {
+                    const opt = document.createElement('option');
+                    opt.value = prod.nombre;
+                    const sinStock = prod.stock === 0 ? ' — Sin stock' : '';
+                    opt.textContent = prod.nombre + sinStock;
+                    if (prod.stock === 0) opt.style.color = '#ba1a1a';
+                    select.appendChild(opt);
+                });
+
+                // Opción "Otro" siempre al final
+                const otro = document.createElement('option');
+                otro.value = 'Otro';
+                otro.textContent = 'Otro servicio';
+                select.appendChild(otro);
+
+                // Actualizar inventario con datos reales
+                inventarioActualizado = data.map(prod => ({
+                    id: prod.nombre,
+                    stock: nivelStock(prod.stock),
+                    disponible: prod.stock > 0,
+                    tiempo: prod.stock === 0
+                        ? 'Por favor consulta tiempos de reposición con nuestro equipo.'
+                        : prod.stock <= 5
+                            ? 'Pocas unidades disponibles, sujeto a confirmación.'
+                            : ''
+                }));
+                // Agregar "Otro" al inventario
+                inventarioActualizado.push({ id: 'Otro', stock: 'alto', disponible: true, tiempo: '' });
+
             } catch (err) {
-                console.warn('Utilizando datos locales de inventario por falta de conexión.');
+                // Fallback: opciones estáticas si falla Supabase
+                console.warn('Usando productos locales por error de conexión:', err.message);
+                select.innerHTML = `
+                    <option value="" disabled selected>Selecciona un servicio</option>
+                    <option value="Bordado computarizado">Bordado computarizado</option>
+                    <option value="Uniformes corporativos">Uniformes corporativos</option>
+                    <option value="Playeras / Polo">Playeras / Polo</option>
+                    <option value="Gorras bordadas">Gorras bordadas</option>
+                    <option value="Chalecos industriales">Chalecos industriales</option>
+                    <option value="Paquete completo">Paquete completo</option>
+                    <option value="Otro">Otro servicio</option>
+                `;
+                inventarioActualizado = [...inventarioFallback];
             }
         }
-        cargarInventarioReal();
+        cargarProductosDinamicos();
 
         // Lógica de visualización del aviso de inventario
         servicioSelect.addEventListener('change', (e) => {

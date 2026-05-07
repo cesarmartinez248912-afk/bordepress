@@ -989,9 +989,16 @@
 
             // ─── AUTH ─────────────────────────────────────────
             async function checkAuth() {
-                const { data: { session } } = await db.auth.getSession();
-                if (session?.user) {
-                    initAdminApp(session.user);
+                // getUser() valida el token contra el servidor de Supabase (más seguro que getSession())
+                // getSession() solo lee localStorage sin verificar si el token sigue siendo válido
+                const { data: { user }, error } = await db.auth.getUser();
+                if (!error && user) {
+                    initAdminApp(user);
+                } else {
+                    // Token inválido o expirado: forzar pantalla de login y limpiar sesión local
+                    await db.auth.signOut();
+                    loginScreen.classList.remove('hidden');
+                    adminApp.classList.add('hidden');
                 }
             }
 
@@ -1331,8 +1338,10 @@
                 const catCustom = document.getElementById('field-categoria-custom');
                 const nombre = document.getElementById('field-nombre').value.trim();
                 const categoria = customCatMode ? catCustom.value.trim() : catSelect.value;
-                const precio = parseFloat(document.getElementById('field-precio').value);
-                const stock = parseInt(document.getElementById('field-stock').value);
+                const precioRaw = document.getElementById('field-precio').value;
+                const stockRaw = document.getElementById('field-stock').value;
+                const precio = precioRaw !== '' ? parseFloat(precioRaw) : NaN;
+                const stock = stockRaw !== '' ? parseInt(stockRaw, 10) : NaN;
                 const descripcion = document.getElementById('field-descripcion').value.trim();
                 const imagenUrl = uploadedImageUrl || document.getElementById('field-imagen-url').value.trim() || null;
 
@@ -1359,7 +1368,7 @@
                 submitText.textContent = editingId ? 'Actualizando...' : 'Guardando...';
                 submitSpinner.classList.remove('hidden');
 
-                const payload = { nombre, categoria: categoria || null, descripcion: descripcion || null, precio, stock, imagen_url: imagenUrl };
+                const payload = { nombre, categoria: categoria || null, descripcion: descripcion || null, precio, stock: isNaN(stock) ? 0 : stock, imagen_url: imagenUrl };
 
                 try {
                     let error;
