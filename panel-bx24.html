@@ -398,6 +398,7 @@
                     <span class="material-symbols-outlined text-[20px] text-on-primary-container">label</span>
                     <span class="sidebar-label text-white">Categorías</span>
                 </a>
+
             </nav>
 
             <!-- User info -->
@@ -514,33 +515,41 @@
                         </div>
                     </div>
 
-                    <!-- Recent products preview -->
+                    <!-- Recent products / inventory preview -->
                     <div class="bg-white rounded-xl border border-outline-variant overflow-hidden">
                         <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
-                            <h3 class="font-display font-semibold text-primary-container">Productos recientes</h3>
+                            <div>
+                                <h3 class="font-display font-semibold text-primary-container">Inventario reciente</h3>
+                                <p class="text-xs text-on-surface-variant mt-0.5">Últimos productos agregados</p>
+                            </div>
                             <button data-section="productos"
                                 class="nav-trigger text-xs font-semibold text-secondary-container hover:text-secondary transition-colors flex items-center gap-1">
                                 Ver todos <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
                             </button>
                         </div>
-                        <div id="dashboard-recent" class="divide-y divide-outline-variant">
-                            <!-- skeleton -->
-                            <div class="px-6 py-4 flex items-center gap-4">
-                                <div class="skeleton w-10 h-10 rounded-lg"></div>
-                                <div class="flex-1">
-                                    <div class="skeleton h-4 w-40 mb-2"></div>
-                                    <div class="skeleton h-3 w-24"></div>
-                                </div>
-                                <div class="skeleton h-4 w-16"></div>
-                            </div>
-                            <div class="px-6 py-4 flex items-center gap-4">
-                                <div class="skeleton w-10 h-10 rounded-lg"></div>
-                                <div class="flex-1">
-                                    <div class="skeleton h-4 w-48 mb-2"></div>
-                                    <div class="skeleton h-3 w-20"></div>
-                                </div>
-                                <div class="skeleton h-4 w-16"></div>
-                            </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-outline-variant text-left" style="background:#f7fafd;">
+                                        <th
+                                            class="px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant w-12">
+                                        </th>
+                                        <th
+                                            class="px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                                            Producto</th>
+                                        <th
+                                            class="px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant hidden sm:table-cell">
+                                            Categoría</th>
+                                        <th
+                                            class="px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant hidden md:table-cell">
+                                            Precio</th>
+                                        <th
+                                            class="px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                                            Stock</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboard-recent"></tbody>
+                            </table>
                         </div>
                     </div>
                 </section>
@@ -661,7 +670,6 @@
                     </div>
                 </section>
 
-                <!-- ─── COTIZACIONES SECTION ─── -->
                 <section id="section-cotizaciones" class="section-content hidden">
                     <div class="bg-white rounded-xl border border-outline-variant overflow-hidden">
                         <div class="flex items-center gap-3 px-6 py-4 border-b border-outline-variant">
@@ -693,12 +701,15 @@
                                             Email</th>
                                         <th
                                             class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
-                                            Contacto</th>
+                                            Estado</th>
+                                        <th
+                                            class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+                                            Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="cotizaciones-tbody">
                                     <tr>
-                                        <td colspan="6" class="text-center py-12 text-on-surface-variant text-sm">
+                                        <td colspan="7" class="text-center py-12 text-on-surface-variant text-sm">
                                             Cargando cotizaciones...</td>
                                     </tr>
                                 </tbody>
@@ -709,21 +720,41 @@
 
                 <!-- ─── CATEGORIAS SECTION ─── -->
                 <section id="section-categorias" class="section-content hidden">
-                    <div
-                        class="bg-white rounded-xl border border-outline-variant p-8 text-center max-w-md mx-auto mt-8">
-                        <span class="material-symbols-outlined text-5xl text-on-surface-variant mb-3 block"
-                            style="font-variation-settings: 'FILL' 0, 'wght' 200;">label</span>
-                        <h3 class="font-display font-semibold text-lg text-primary-container mb-1">Gestión de categorías
+                    <!-- Add category form -->
+                    <div class="bg-white rounded-xl border border-outline-variant p-6 mb-5">
+                        <h3 class="font-display font-semibold text-primary-container mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[20px]">add_circle</span> Nueva categoría
                         </h3>
-                        <p class="text-sm text-on-surface-variant mb-4">Las categorías se gestionan directamente desde
-                            el formulario de productos.</p>
-                        <button data-section="productos"
-                            class="nav-trigger inline-flex items-center gap-2 text-sm font-semibold text-white rounded-lg px-5 py-2.5 transition-all hover:opacity-90"
-                            style="background: linear-gradient(135deg, #001f3f, #002a56);">
-                            <span class="material-symbols-outlined text-[16px]">inventory_2</span> Ir a Productos
-                        </button>
+                        <div class="flex gap-3">
+                            <input id="new-cat-input" type="text" placeholder="Ej. Chalecos, Gorras premium..."
+                                class="admin-input flex-1 px-4 py-2.5 border border-outline-variant rounded-lg text-sm transition-colors" />
+                            <button id="btn-add-cat"
+                                class="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90 active:scale-[0.97]"
+                                style="background: linear-gradient(135deg, #fd8b00, #e07a00);">
+                                <span class="material-symbols-outlined text-[16px]">add</span> Agregar
+                            </button>
+                        </div>
+                        <p class="text-xs text-on-surface-variant mt-2">Las categorías se toman de los productos
+                            existentes. Agrega una nueva o elimina las que ya no uses.</p>
+                    </div>
+                    <!-- Category list -->
+                    <div class="bg-white rounded-xl border border-outline-variant overflow-hidden">
+                        <div class="flex items-center gap-3 px-6 py-4 border-b border-outline-variant">
+                            <span class="material-symbols-outlined text-primary-container">label</span>
+                            <div>
+                                <h3 class="font-display font-semibold text-primary-container">Categorías activas</h3>
+                                <p class="text-xs text-on-surface-variant">Eliminando una categoría, los productos
+                                    quedan sin categoría asignada</p>
+                            </div>
+                        </div>
+                        <div id="categorias-list" class="divide-y divide-outline-variant">
+                            <div class="px-6 py-8 text-center text-sm text-on-surface-variant">Cargando categorías...
+                            </div>
+                        </div>
                     </div>
                 </section>
+
+
 
             </main>
         </div>
@@ -1059,6 +1090,7 @@
                 loadProducts();
                 loadDashboard();
                 loadCotizaciones();
+                loadCategorias();
             }
 
             // ─── NAVIGATION ───────────────────────────────────
@@ -1069,10 +1101,12 @@
                 const link = document.querySelector(`[data-section="${name}"]`);
                 if (section) section.classList.remove('hidden');
                 if (link) link.classList.add('active');
+                // Refresh data on section switch
+                if (name === 'categorias') loadCategorias();
 
                 const titles = {
                     dashboard: ['Dashboard', 'Resumen general del sistema'],
-                    productos: ['Productos', 'Gestión de catálogo e inventario'],
+                    productos: ['Productos', 'Catálogo e inventario'],
                     cotizaciones: ['Cotizaciones', 'Solicitudes recibidas de clientes'],
                     categorias: ['Categorías', 'Organización de productos']
                 };
@@ -1244,55 +1278,122 @@ CREATE POLICY "Admin gestiona imágenes"
             async function loadDashboard() {
                 const { data } = await db.from('productos').select('nombre,precio,stock,categoria,imagen_url,created_at').order('created_at', { ascending: false }).limit(5);
                 const products = data || allProducts;
-                const total = products.length || allProducts.length;
-                const low = (data || allProducts).filter(p => p.stock < 10).length;
-                const cats = new Set((data || allProducts).map(p => p.categoria).filter(Boolean)).size;
-                const val = (data || allProducts).reduce((s, p) => s + (Number(p.precio || 0) * Number(p.stock || 0)), 0);
+                const total = allProducts.length || products.length;
+                const low = (allProducts.length ? allProducts : products).filter(p => p.stock < 10).length;
+                const cats = new Set((allProducts.length ? allProducts : products).map(p => p.categoria).filter(Boolean)).size;
+                const val = (allProducts.length ? allProducts : products).reduce((s, p) => s + (Number(p.precio || 0) * Number(p.stock || 0)), 0);
 
-                document.getElementById('stat-total').textContent = allProducts.length || total;
+                document.getElementById('stat-total').textContent = total;
                 document.getElementById('stat-low').textContent = low;
                 document.getElementById('stat-cats').textContent = cats;
                 document.getElementById('stat-value').textContent = '$' + val.toLocaleString('es-MX');
 
                 const recent = document.getElementById('dashboard-recent');
                 if (!data || data.length === 0) {
-                    recent.innerHTML = '<p class="text-center text-sm text-on-surface-variant py-8">No hay productos aún</p>';
+                    recent.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-sm text-on-surface-variant">No hay productos aún</td></tr>';
                     return;
                 }
-                recent.innerHTML = data.slice(0, 5).map(p => `
-        <div class="px-6 py-3.5 flex items-center gap-4 hover:bg-surface-container-low transition-colors">
-          ${p.imagen_url
-                        ? `<img src="${p.imagen_url}" class="w-10 h-10 object-cover rounded-lg border border-outline-variant flex-shrink-0" onerror="this.style.display='none'">`
-                        : `<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-[18px] text-outline">image</span></div>`
-                    }
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-on-surface truncate">${p.nombre}</p>
-            <p class="text-xs text-on-surface-variant">${p.categoria || '—'} · Stock: ${p.stock ?? '?'}</p>
-          </div>
-          <span class="text-sm font-bold text-primary-container flex-shrink-0">$${Number(p.precio || 0).toLocaleString('es-MX')}</span>
-        </div>
-      `).join('');
+
+                const catColors = {
+                    'Uniformes': '#001f3f,#d4e3ff', 'Bordados': '#341600,#ffdcc5',
+                    'Playeras': '#2f1500,#ffdcc3', 'Gorras': '#181c1e,#e0e3e6',
+                    'Accesorios': '#0e0300,#ffdcc5', 'Estampados': '#603100,#ffdcc3'
+                };
+
+                recent.innerHTML = data.slice(0, 5).map(p => {
+                    const stockClass = p.stock <= 0 ? 'text-error bg-error-container' :
+                        p.stock < 10 ? 'text-secondary bg-secondary-fixed' :
+                            'text-on-surface bg-surface-container-high';
+                    const [catFg, catBg] = (catColors[p.categoria] || '#181c1e,#e0e3e6').split(',');
+                    const imgTag = p.imagen_url
+                        ? `<img src="${p.imagen_url}" alt="${p.nombre}" class="w-9 h-9 object-cover rounded-lg border border-outline-variant" onerror="this.style.display='none'">`
+                        : `<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center"><span class="material-symbols-outlined text-[16px] text-outline">image</span></div>`;
+                    return `
+        <tr class="product-row border-b border-outline-variant">
+          <td class="px-5 py-3">${imgTag}</td>
+          <td class="px-5 py-3">
+            <p class="font-semibold text-sm text-on-surface truncate max-w-[180px]">${p.nombre}</p>
+          </td>
+          <td class="px-5 py-3 hidden sm:table-cell">
+            ${p.categoria ? `<span class="cat-pill" style="background:${catBg};color:${catFg}">${p.categoria}</span>` : '<span class="text-xs text-on-surface-variant">—</span>'}
+          </td>
+          <td class="px-5 py-3 hidden md:table-cell">
+            <span class="text-sm font-bold text-primary-container">$${Number(p.precio || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+          </td>
+          <td class="px-5 py-3">
+            <span class="cat-pill ${stockClass}">${p.stock ?? 0} uds</span>
+          </td>
+        </tr>`;
+                }).join('');
             }
 
             async function loadCotizaciones() {
                 const { data, error } = await db.from('cotizaciones').select('*').order('creado_en', { ascending: false }).limit(50);
                 const cotTbody = document.getElementById('cotizaciones-tbody');
                 if (error || !data?.length) {
-                    cotTbody.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-sm text-on-surface-variant">No hay cotizaciones recibidas aún.</td></tr>';
+                    cotTbody.innerHTML = '<tr><td colspan="7" class="text-center py-12 text-sm text-on-surface-variant">No hay cotizaciones recibidas aún.</td></tr>';
                     return;
                 }
-                cotTbody.innerHTML = data.map(c => `
-        <tr class="product-row border-b border-outline-variant">
+                const estadoMeta = {
+                    'nuevo': { color: '#d4e3ff', text: '#001c3a', label: 'Nuevo' },
+                    'en_proceso': { color: '#ffdcc3', text: '#2f1500', label: 'En proceso' },
+                    'completado': { color: '#c8f5d8', text: '#0a3d22', label: 'Completado' },
+                    'cancelado': { color: '#ffdad6', text: '#93000a', label: 'Cancelado' }
+                };
+                cotTbody.innerHTML = data.map(c => {
+                    const em = estadoMeta[c.estado] || estadoMeta['nuevo'];
+                    return `
+        <tr class="product-row border-b border-outline-variant" data-cot-id="${c.id}">
           <td class="px-4 py-3 text-xs text-on-surface-variant whitespace-nowrap">${new Date(c.creado_en).toLocaleDateString('es-MX')}</td>
-          <td class="px-4 py-3 text-sm font-semibold text-on-surface">${c.nombre || '—'}</td>
+          <td class="px-4 py-3 text-sm font-semibold text-on-surface">${c.nombre || '—'}${c.telefono ? `<p class="text-xs text-on-surface-variant font-normal mt-0.5">${c.telefono}</p>` : ''}</td>
           <td class="px-4 py-3 text-sm text-on-surface-variant hidden md:table-cell">${c.empresa || '—'}</td>
           <td class="px-4 py-3 hidden sm:table-cell"><span class="cat-pill bg-surface-container-high text-on-surface">${c.servicio || '—'}</span></td>
           <td class="px-4 py-3 text-xs text-on-surface-variant hidden lg:table-cell">${c.email || '—'}</td>
           <td class="px-4 py-3">
-            ${c.email ? `<a href="mailto:${c.email}" class="inline-flex items-center gap-1 text-xs font-semibold text-secondary-container hover:text-secondary transition-colors"><span class="material-symbols-outlined text-[14px]">mail</span> Escribir</a>` : '—'}
+            <select class="cot-estado-select text-xs font-semibold rounded-full px-2.5 py-1 border-0 cursor-pointer" data-cot-id="${c.id}"
+              style="background:${em.color};color:${em.text};">
+              <option value="nuevo" ${c.estado === 'nuevo' ? 'selected' : ''}>Nuevo</option>
+              <option value="en_proceso" ${c.estado === 'en_proceso' ? 'selected' : ''}>En proceso</option>
+              <option value="completado" ${c.estado === 'completado' ? 'selected' : ''}>Completado</option>
+              <option value="cancelado" ${c.estado === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+            </select>
           </td>
-        </tr>
-      `).join('');
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-1">
+              ${c.email ? `<a href="mailto:${c.email}" class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-primary-container transition-colors" title="Escribir"><span class="material-symbols-outlined text-[18px]">mail</span></a>` : ''}
+              <button class="btn-delete-cot w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-error-container hover:text-error transition-colors" data-cot-id="${c.id}" data-name="${c.nombre}" title="Eliminar">
+                <span class="material-symbols-outlined text-[18px] pointer-events-none">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+                }).join('');
+
+                // Estado change listener
+                cotTbody.querySelectorAll('.cot-estado-select').forEach(sel => {
+                    sel.addEventListener('change', async () => {
+                        const id = sel.dataset.cotId;
+                        const newEstado = sel.value;
+                        const em = estadoMeta[newEstado] || estadoMeta['nuevo'];
+                        sel.style.background = em.color;
+                        sel.style.color = em.text;
+                        const { error } = await db.from('cotizaciones').update({ estado: newEstado }).eq('id', id);
+                        if (error) { toast('Error actualizando estado', 'error'); }
+                        else { toast('Estado actualizado ✓', 'success'); }
+                    });
+                });
+
+                // Delete cotizacion listeners
+                cotTbody.querySelectorAll('.btn-delete-cot').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const id = btn.dataset.cotId;
+                        const name = btn.dataset.name;
+                        if (!confirm(`¿Eliminar la cotización de "${name}"? Esta acción no se puede deshacer.`)) return;
+                        const { error } = await db.from('cotizaciones').delete().eq('id', id);
+                        if (error) { toast('Error al eliminar: ' + error.message, 'error'); }
+                        else { toast('Cotización eliminada', 'info'); loadCotizaciones(); }
+                    });
+                });
             }
 
             // ─── MODAL OPEN/CLOSE ─────────────────────────────
@@ -1468,6 +1569,89 @@ CREATE POLICY "Admin gestiona imágenes"
                     delBtn.disabled = false;
                 }
             }
+
+            // ─── CATEGORIAS ───────────────────────────────────
+            async function loadCategorias() {
+                // Derive categories from productos table
+                const { data } = await db.from('productos').select('categoria').not('categoria', 'is', null);
+                const list = document.getElementById('categorias-list');
+                if (!data?.length) {
+                    list.innerHTML = '<div class="px-6 py-8 text-center text-sm text-on-surface-variant">No hay categorías todavía. Agrega productos con categorías para verlas aquí.</div>';
+                    return;
+                }
+                const cats = [...new Set(data.map(p => p.categoria).filter(Boolean))].sort();
+                // Count per category
+                const counts = {};
+                data.forEach(p => { counts[p.categoria] = (counts[p.categoria] || 0) + 1; });
+                const catColors = {
+                    'Uniformes': '#001f3f,#d4e3ff', 'Bordados': '#341600,#ffdcc5',
+                    'Playeras': '#2f1500,#ffdcc3', 'Gorras': '#181c1e,#e0e3e6',
+                    'Accesorios': '#0e0300,#ffdcc5', 'Estampados': '#603100,#ffdcc3'
+                };
+                list.innerHTML = cats.map(cat => {
+                    const [fg, bg] = (catColors[cat] || '#181c1e,#e0e3e6').split(',');
+                    return `
+        <div class="flex items-center justify-between px-6 py-3.5 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="cat-pill" style="background:${bg};color:${fg}">${cat}</span>
+            <span class="text-sm text-on-surface-variant">${counts[cat] || 0} producto${(counts[cat] || 0) !== 1 ? 's' : ''}</span>
+          </div>
+          <button class="btn-delete-cat w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-error-container hover:text-error transition-colors" data-cat="${cat}" title="Eliminar categoría">
+            <span class="material-symbols-outlined text-[18px] pointer-events-none">delete</span>
+          </button>
+        </div>`;
+                }).join('');
+
+                list.querySelectorAll('.btn-delete-cat').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const cat = btn.dataset.cat;
+                        const n = counts[cat] || 0;
+                        if (!confirm(`¿Eliminar la categoría "${cat}"?\n\nEsto quitará la categoría de ${n} producto${n !== 1 ? 's' : ''} (los productos no se eliminan).`)) return;
+                        const { error } = await db.from('productos').update({ categoria: null }).eq('categoria', cat);
+                        if (error) { toast('Error: ' + error.message, 'error'); }
+                        else {
+                            toast(`Categoría "${cat}" eliminada ✓`, 'info');
+                            await loadCategorias();
+                            await loadProducts();
+                        }
+                    });
+                });
+
+                // Also update the modal select
+                const modalSelect = document.getElementById('field-categoria');
+                // Remove dynamic options first
+                [...modalSelect.options].forEach(o => {
+                    if (!['', 'Uniformes', 'Bordados', 'Playeras', 'Gorras', 'Accesorios', 'Estampados'].includes(o.value)) o.remove();
+                });
+                cats.forEach(c => {
+                    if (![...modalSelect.options].find(o => o.value === c)) {
+                        const o = document.createElement('option');
+                        o.value = c; o.textContent = c;
+                        modalSelect.appendChild(o);
+                    }
+                });
+            }
+
+            // ─── ADD CATEGORY ─────────────────────────────────
+            document.getElementById('btn-add-cat').addEventListener('click', async () => {
+                const input = document.getElementById('new-cat-input');
+                const name = input.value.trim();
+                if (!name) { toast('Escribe el nombre de la categoría', 'error'); return; }
+                // Add to modal select if not present
+                const modalSelect = document.getElementById('field-categoria');
+                if (![...modalSelect.options].find(o => o.value === name)) {
+                    const o = document.createElement('option');
+                    o.value = name; o.textContent = name;
+                    modalSelect.appendChild(o);
+                }
+                input.value = '';
+                toast(`Categoría "${name}" lista para usar en productos ✓`, 'success');
+                await loadCategorias();
+            });
+
+            document.getElementById('new-cat-input').addEventListener('keydown', e => {
+                if (e.key === 'Enter') document.getElementById('btn-add-cat').click();
+            });
 
             // ─── IMAGE UPLOAD ─────────────────────────────────
             async function uploadFile(file) {
