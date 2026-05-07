@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>BordaXpress — Panel Administrativo</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Work+Sans:wght@600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#f7fafd", "tertiary": "#0e0300", "tertiary-container": "#341600",
+                        "surface-container-low": "#f1f4f7", "surface-container-highest": "#e0e3e6",
+                        "secondary-fixed": "#ffdcc3", "on-surface": "#181c1e", "surface-dim": "#d7dadd",
+                        "on-tertiary-container": "#ce6c0a", "primary-fixed": "#d4e3ff",
+                        "surface": "#f7fafd", "on-tertiary": "#ffffff", "error-container": "#ffdad6",
+                        "on-primary-container": "#6f88ad", "on-secondary-fixed": "#2f1500",
+                        "on-surface-variant": "#43474e", "secondary-fixed-dim": "#ffb77d",
+                        "tertiary-fixed": "#ffdcc5", "background": "#f7fafd",
+                        "on-secondary-fixed-variant": "#6e3900", "surface-tint": "#476083",
+                        "secondary-container": "#fd8b00", "on-primary": "#ffffff",
+                        "inverse-primary": "#afc8f0", "inverse-on-surface": "#eef1f4",
+                        "secondary": "#904d00", "on-primary-fixed": "#001c3a",
+                        "on-primary-fixed-variant": "#2f486a", "on-tertiary-fixed-variant": "#713700",
+                        "on-tertiary-fixed": "#301400", "on-background": "#181c1e",
+                        "primary-container": "#001f3f", "surface-container-lowest": "#ffffff",
+                        "primary": "#000613", "error": "#ba1a1a", "on-error-container": "#93000a",
+                        "outline": "#74777f", "inverse-surface": "#2d3133", "on-error": "#ffffff",
+                        "surface-variant": "#e0e3e6", "surface-container-high": "#e5e8eb",
+                        "on-secondary-container": "#603100", "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#afc8f0", "tertiary-fixed-dim": "#ffb783",
+                        "outline-variant": "#c4c6cf", "surface-container": "#ebeef1"
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                    fontFamily: { "sans": ["Inter", "sans-serif"], "display": ["Work Sans", "sans-serif"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Sidebar */
+        #sidebar {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s;
+        }
+
+        #main-content {
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Skeleton shimmer */
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0
+            }
+
+            100% {
+                background-position: 1000px 0
+            }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #e5e8eb 25%, #f1f4f7 50%, #e5e8eb 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 1.6s infinite;
+            border-radius: 0.375rem;
+        }
+
+        /* Toast */
+        #toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            padding: 0.875rem 1.25rem;
+            border-radius: 0.5rem;
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            box-shadow: 0 8px 32px rgba(0, 6, 19, 0.18);
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-width: 360px;
+        }
+
+        .toast.success {
+            background: #1a7a4a;
+        }
+
+        .toast.error {
+            background: #ba1a1a;
+        }
+
+        .toast.info {
+            background: #001f3f;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(120%);
+                opacity: 0
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateX(0)
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(120%)
+            }
+        }
+
+        .toast.removing {
+            animation: fadeOut 0.3s ease forwards;
+        }
+
+        /* Modal */
+        #product-modal {
+            transition: opacity 0.2s ease;
+        }
+
+        #product-modal.hidden {
+            display: none !important;
+        }
+
+        #modal-panel {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+        }
+
+        /* Table row hover */
+        .product-row {
+            transition: background 0.15s;
+        }
+
+        .product-row:hover {
+            background: #f1f4f7;
+        }
+
+        /* Input focus ring */
+        .admin-input:focus {
+            outline: none;
+            border-color: #001f3f;
+            box-shadow: 0 0 0 3px rgba(0, 31, 63, 0.12);
+        }
+
+        /* Image upload drag zone */
+        #drop-zone {
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        #drop-zone.drag-over {
+            border-color: #fd8b00;
+            background: #fff9f0;
+        }
+
+        /* Nav link active */
+        .nav-link.active {
+            background: rgba(253, 139, 0, 0.15);
+            color: #fd8b00;
+            border-left: 3px solid #fd8b00;
+        }
+
+        .nav-link.active .material-symbols-outlined {
+            color: #fd8b00;
+        }
+
+        .nav-link {
+            border-left: 3px solid transparent;
+        }
+
+        /* Scrollbar sidebar */
+        #sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 2px;
+        }
+
+        /* Stats card hover */
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 6, 19, 0.10);
+        }
+
+        /* Category pill */
+        .cat-pill {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 0.2rem 0.55rem;
+            border-radius: 9999px;
+        }
+
+        /* Confirm delete overlay */
+        #confirm-modal {
+            transition: opacity 0.2s;
+        }
+
+        #confirm-modal.hidden {
+            display: none !important;
+        }
+
+        /* Login card */
+        #login-screen {
+            background: linear-gradient(135deg, #000613 0%, #001f3f 60%, #0e0300 100%);
+        }
+
+        /* Sidebar collapse */
+        .sidebar-label {
+            transition: opacity 0.2s, max-width 0.3s;
+        }
+    </style>
+</head>
+
+<body class="bg-surface font-sans text-on-background overflow-x-hidden">
+
+    <!-- =============================================
+       🔧 SUPABASE CONFIG
+  ============================================= -->
+    <script>
+        const SUPABASE_URL = 'https://mqocxeexisyrfkrhgdam.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xb2N4ZWV4aXN5cmZrcmhnZGFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNDMyNjgsImV4cCI6MjA5MzYxOTI2OH0.YQqTlMA8nDCR7l48gjmE_cKpNZ24whypTpL8xCYUcBw';
+        const { createClient } = supabase;
+        const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
+
+    <!-- =============================================
+       🔐 LOGIN SCREEN
+  ============================================= -->
+    <div id="login-screen" class="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <!-- Background pattern -->
+        <div class="absolute inset-0 opacity-5"
+            style="background-image: repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%); background-size: 20px 20px;">
+        </div>
+
+        <div class="relative w-full max-w-md">
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-2xl fill">diamond</span>
+                    </div>
+                    <div>
+                        <p class="font-display font-bold text-2xl text-white tracking-tight">BordaXpress</p>
+                        <p class="text-xs text-on-primary-container tracking-widest uppercase font-semibold">Panel
+                            Administrativo</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card -->
+            <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+                <div class="h-1.5 w-full" style="background: linear-gradient(90deg, #001f3f, #fd8b00);"></div>
+                <div class="p-8">
+                    <h2 class="font-display text-2xl font-bold text-primary-container mb-1">Iniciar sesión</h2>
+                    <p class="text-sm text-on-surface-variant mb-6">Ingresa tus credenciales de administrador</p>
+
+                    <div id="login-error"
+                        class="hidden mb-4 p-3 rounded-lg bg-error-container text-on-error-container text-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">error</span>
+                        <span id="login-error-msg">Credenciales inválidas</span>
+                    </div>
+
+                    <div class="flex flex-col gap-5">
+                        <div>
+                            <label
+                                class="block text-xs font-semibold tracking-widest uppercase text-on-surface-variant mb-1.5">Correo
+                                electrónico</label>
+                            <input id="login-email" type="email" placeholder="admin@bordaxpress.com"
+                                autocomplete="email"
+                                class="admin-input w-full px-4 py-3 border border-outline-variant rounded-lg text-sm bg-surface focus:border-primary-container transition-colors" />
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-semibold tracking-widest uppercase text-on-surface-variant mb-1.5">Contraseña</label>
+                            <div class="relative">
+                                <input id="login-password" type="password" placeholder="••••••••"
+                                    autocomplete="current-password"
+                                    class="admin-input w-full px-4 py-3 pr-12 border border-outline-variant rounded-lg text-sm bg-surface focus:border-primary-container transition-colors" />
+                                <button type="button" id="toggle-pass"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface">
+                                    <span id="eye-icon" class="material-symbols-outlined text-[20px]">visibility</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button id="btn-login" type="button"
+                            class="w-full py-3 rounded-lg font-semibold text-sm tracking-wide text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.98]"
+                            style="background: linear-gradient(135deg, #001f3f, #002a56);">
+                            <span id="login-btn-text">Ingresar al panel</span>
+                            <span id="login-spinner"
+                                class="hidden material-symbols-outlined text-[18px] animate-spin">autorenew</span>
+                        </button>
+                    </div>
+
+                    <p class="text-center text-xs text-on-surface-variant mt-6">
+                        <a href="/"
+                            class="hover:text-secondary-container transition-colors inline-flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">arrow_back</span> Volver al sitio
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <p class="text-center text-xs text-on-primary-fixed mt-4 opacity-50">© 2024 BordaXpress Industrial</p>
+        </div>
+    </div>
+
+    <!-- =============================================
+       🏠 ADMIN LAYOUT (hidden until auth)
+  ============================================= -->
+    <div id="admin-app" class="hidden min-h-screen flex">
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 z-30 flex flex-col overflow-y-auto"
+            style="background: linear-gradient(180deg, #000613 0%, #001228 100%); border-right: 1px solid rgba(255,255,255,0.06);">
+
+            <!-- Logo -->
+            <div class="flex items-center gap-3 px-5 py-5 border-b" style="border-color: rgba(255,255,255,0.07);">
+                <div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-white text-lg fill">diamond</span>
+                </div>
+                <div class="sidebar-label min-w-0">
+                    <p class="font-display font-bold text-white text-base leading-tight">BordaXpress</p>
+                    <p class="text-[10px] text-on-primary-container tracking-widest uppercase">Admin</p>
+                </div>
+                <button id="sidebar-toggle"
+                    class="ml-auto text-on-primary-container hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">menu_open</span>
+                </button>
+            </div>
+
+            <!-- Nav -->
+            <nav class="flex-1 p-3 pt-4">
+                <p class="sidebar-label text-[10px] font-bold tracking-widest uppercase px-3 mb-2"
+                    style="color: rgba(175,200,240,0.4);">Principal</p>
+                <a href="#" data-section="dashboard"
+                    class="nav-link active flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-sm font-medium transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-[20px] text-on-primary-container">dashboard</span>
+                    <span class="sidebar-label text-white">Dashboard</span>
+                </a>
+                <a href="#" data-section="productos"
+                    class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-sm font-medium transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-[20px] text-on-primary-container">inventory_2</span>
+                    <span class="sidebar-label text-white">Productos</span>
+                </a>
+                <a href="#" data-section="cotizaciones"
+                    class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-sm font-medium transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-[20px] text-on-primary-container">receipt_long</span>
+                    <span class="sidebar-label text-white">Cotizaciones</span>
+                </a>
+
+                <p class="sidebar-label text-[10px] font-bold tracking-widest uppercase px-3 mb-2 mt-6"
+                    style="color: rgba(175,200,240,0.4);">Herramientas</p>
+                <a href="#" data-section="categorias"
+                    class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-sm font-medium transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-[20px] text-on-primary-container">label</span>
+                    <span class="sidebar-label text-white">Categorías</span>
+                </a>
+            </nav>
+
+            <!-- User info -->
+            <div class="p-3 border-t" style="border-color: rgba(255,255,255,0.07);">
+                <div class="flex items-center gap-3 px-2 py-2 rounded-lg" style="background: rgba(255,255,255,0.05);">
+                    <div
+                        class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center flex-shrink-0">
+                        <span id="user-avatar" class="text-white text-xs font-bold">A</span>
+                    </div>
+                    <div class="sidebar-label flex-1 min-w-0">
+                        <p class="text-white text-xs font-semibold truncate" id="user-email-display">admin</p>
+                        <p class="text-[10px]" style="color: rgba(175,200,240,0.5);">Administrador</p>
+                    </div>
+                    <button id="btn-logout" title="Cerrar sesión"
+                        class="sidebar-label text-on-primary-container hover:text-error transition-colors flex-shrink-0">
+                        <span class="material-symbols-outlined text-[18px]">logout</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN AREA ===== -->
+        <div id="main-content" class="flex-1 ml-64 min-h-screen flex flex-col">
+
+            <!-- Top bar -->
+            <header
+                class="sticky top-0 z-20 bg-white border-b border-outline-variant flex items-center justify-between px-6 py-3.5"
+                style="box-shadow: 0 1px 0 rgba(0,6,19,0.06);">
+                <div class="flex items-center gap-3">
+                    <button id="mobile-sidebar-btn" class="lg:hidden text-on-surface-variant hover:text-on-surface">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                    <div>
+                        <h1 id="page-title" class="font-display font-bold text-primary-container text-lg leading-tight">
+                            Dashboard</h1>
+                        <p id="page-subtitle" class="text-xs text-on-surface-variant">Resumen general del sistema</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="/" target="_blank"
+                        class="hidden sm:flex items-center gap-2 text-xs font-semibold text-on-surface-variant border border-outline-variant rounded-lg px-3 py-2 hover:border-primary-container hover:text-primary-container transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">open_in_new</span> Ver sitio
+                    </a>
+                    <button id="btn-new-product"
+                        class="flex items-center gap-2 text-xs font-bold tracking-wide text-white rounded-lg px-4 py-2 transition-all hover:opacity-90 active:scale-[0.97]"
+                        style="background: linear-gradient(135deg, #fd8b00, #e07a00);">
+                        <span class="material-symbols-outlined text-[16px]">add</span>
+                        <span>Nuevo producto</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page content -->
+            <main class="flex-1 p-6">
+
+                <!-- ─── DASHBOARD SECTION ─── -->
+                <section id="section-dashboard" class="section-content">
+                    <!-- Stats grid -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div
+                            class="stat-card bg-white rounded-xl border border-outline-variant p-5 flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Total
+                                    Productos</p>
+                                <div class="w-9 h-9 rounded-lg flex items-center justify-center"
+                                    style="background: rgba(0,31,63,0.08);">
+                                    <span
+                                        class="material-symbols-outlined text-[18px] text-primary-container">inventory_2</span>
+                                </div>
+                            </div>
+                            <p id="stat-total" class="font-display text-3xl font-bold text-primary-container">—</p>
+                            <p class="text-xs text-on-surface-variant">En catálogo</p>
+                        </div>
+                        <div
+                            class="stat-card bg-white rounded-xl border border-outline-variant p-5 flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Stock
+                                    bajo</p>
+                                <div class="w-9 h-9 rounded-lg flex items-center justify-center"
+                                    style="background: rgba(186,26,26,0.08);">
+                                    <span class="material-symbols-outlined text-[18px] text-error">warning</span>
+                                </div>
+                            </div>
+                            <p id="stat-low" class="font-display text-3xl font-bold text-error">—</p>
+                            <p class="text-xs text-on-surface-variant">Menos de 10 unidades</p>
+                        </div>
+                        <div
+                            class="stat-card bg-white rounded-xl border border-outline-variant p-5 flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">
+                                    Categorías</p>
+                                <div class="w-9 h-9 rounded-lg flex items-center justify-center"
+                                    style="background: rgba(253,139,0,0.1);">
+                                    <span
+                                        class="material-symbols-outlined text-[18px] text-secondary-container">label</span>
+                                </div>
+                            </div>
+                            <p id="stat-cats" class="font-display text-3xl font-bold" style="color: #fd8b00;">—</p>
+                            <p class="text-xs text-on-surface-variant">Tipos de productos</p>
+                        </div>
+                        <div
+                            class="stat-card bg-white rounded-xl border border-outline-variant p-5 flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Valor
+                                    Inventario</p>
+                                <div class="w-9 h-9 rounded-lg flex items-center justify-center"
+                                    style="background: rgba(0,31,63,0.06);">
+                                    <span
+                                        class="material-symbols-outlined text-[18px] text-primary-container">payments</span>
+                                </div>
+                            </div>
+                            <p id="stat-value" class="font-display text-2xl font-bold text-primary-container">—</p>
+                            <p class="text-xs text-on-surface-variant">MXN total</p>
+                        </div>
+                    </div>
+
+                    <!-- Recent products preview -->
+                    <div class="bg-white rounded-xl border border-outline-variant overflow-hidden">
+                        <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
+                            <h3 class="font-display font-semibold text-primary-container">Productos recientes</h3>
+                            <button data-section="productos"
+                                class="nav-trigger text-xs font-semibold text-secondary-container hover:text-secondary transition-colors flex items-center gap-1">
+                                Ver todos <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                            </button>
+                        </div>
+                        <div id="dashboard-recent" class="divide-y divide-outline-variant">
+                            <!-- skeleton -->
+                            <div class="px-6 py-4 flex items-center gap-4">
+                                <div class="skeleton w-10 h-10 rounded-lg"></div>
+                                <div class="flex-1">
+                                    <div class="skeleton h-4 w-40 mb-2"></div>
+                                    <div class="skeleton h-3 w-24"></div>
+                                </div>
+                                <div class="skeleton h-4 w-16"></div>
+                            </div>
+                            <div class="px-6 py-4 flex items-center gap-4">
+                                <div class="skeleton w-10 h-10 rounded-lg"></div>
+                                <div class="flex-1">
+                                    <div class="skeleton h-4 w-48 mb-2"></div>
+                                    <div class="skeleton h-3 w-20"></div>
+                                </div>
+                                <div class="skeleton h-4 w-16"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ─── PRODUCTOS SECTION ─── -->
+                <section id="section-productos" class="section-content hidden">
+
+                    <!-- Toolbar -->
+                    <div class="flex flex-wrap items-center gap-3 mb-5">
+                        <!-- Search -->
+                        <div class="relative flex-1 min-w-[200px]">
+                            <span
+                                class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-on-surface-variant">search</span>
+                            <input id="search-input" type="text" placeholder="Buscar por nombre o categoría..."
+                                class="admin-input w-full pl-9 pr-4 py-2.5 border border-outline-variant rounded-lg text-sm bg-white transition-colors" />
+                        </div>
+                        <!-- Category filter -->
+                        <select id="filter-cat"
+                            class="admin-input border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-white min-w-[160px] transition-colors">
+                            <option value="">Todas las categorías</option>
+                        </select>
+                        <!-- Sort -->
+                        <select id="sort-select"
+                            class="admin-input border border-outline-variant rounded-lg px-3 py-2.5 text-sm bg-white transition-colors">
+                            <option value="created_at-desc">Más recientes</option>
+                            <option value="nombre-asc">Nombre A→Z</option>
+                            <option value="precio-asc">Precio ↑</option>
+                            <option value="precio-desc">Precio ↓</option>
+                            <option value="stock-asc">Stock ↑</option>
+                        </select>
+                    </div>
+
+                    <!-- Table card -->
+                    <div class="bg-white rounded-xl border border-outline-variant overflow-hidden">
+                        <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
+                            <p class="text-sm text-on-surface-variant"><span id="product-count"
+                                    class="font-bold text-on-surface">0</span> productos encontrados</p>
+                            <button id="btn-refresh"
+                                class="text-on-surface-variant hover:text-primary-container transition-colors"
+                                title="Actualizar">
+                                <span class="material-symbols-outlined text-[20px]">refresh</span>
+                            </button>
+                        </div>
+                        <!-- Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-outline-variant text-left" style="background: #f7fafd;">
+                                        <th
+                                            class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant w-12">
+                                        </th>
+                                        <th
+                                            class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+                                            Producto</th>
+                                        <th
+                                            class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant hidden md:table-cell">
+                                            Categoría</th>
+                                        <th
+                                            class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant hidden sm:table-cell">
+                                            Precio</th>
+                                        <th
+                                            class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant hidden lg:table-cell">
+                                            Stock</th>
+                                        <th
+                                            class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+                                            Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-tbody">
+                                    <!-- Skeleton rows -->
+                                    <tr class="border-b border-outline-variant">
+                                        <td colspan="6" class="px-4 py-3">
+                                            <div class="skeleton h-4 w-full"></div>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-outline-variant">
+                                        <td colspan="6" class="px-4 py-3">
+                                            <div class="skeleton h-4 w-5/6"></div>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-outline-variant">
+                                        <td colspan="6" class="px-4 py-3">
+                                            <div class="skeleton h-4 w-4/6"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Empty state -->
+                        <div id="empty-state" class="hidden text-center py-16 px-6">
+                            <span class="material-symbols-outlined text-5xl text-on-surface-variant mb-3 block"
+                                style="font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 48;">inventory_2</span>
+                            <p class="font-display font-semibold text-lg text-on-surface mb-1">Sin productos</p>
+                            <p class="text-sm text-on-surface-variant mb-4">No se encontraron productos con ese filtro.
+                            </p>
+                            <button id="btn-empty-add"
+                                class="inline-flex items-center gap-2 text-sm font-semibold text-white rounded-lg px-5 py-2.5 transition-all hover:opacity-90"
+                                style="background: linear-gradient(135deg, #fd8b00, #e07a00);">
+                                <span class="material-symbols-outlined text-[16px]">add</span> Agregar producto
+                            </button>
+                        </div>
+                        <!-- Pagination -->
+                        <div class="flex items-center justify-between px-6 py-3 border-t border-outline-variant">
+                            <p id="pagination-info" class="text-xs text-on-surface-variant"></p>
+                            <div class="flex gap-2">
+                                <button id="btn-prev"
+                                    class="px-3 py-1.5 rounded border border-outline-variant text-xs font-semibold text-on-surface-variant hover:bg-surface-container-low disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                    disabled>
+                                    ← Anterior
+                                </button>
+                                <button id="btn-next"
+                                    class="px-3 py-1.5 rounded border border-outline-variant text-xs font-semibold text-on-surface-variant hover:bg-surface-container-low disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                    disabled>
+                                    Siguiente →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ─── COTIZACIONES SECTION ─── -->
+                <section id="section-cotizaciones" class="section-content hidden">
+                    <div class="bg-white rounded-xl border border-outline-variant overflow-hidden">
+                        <div class="flex items-center gap-3 px-6 py-4 border-b border-outline-variant">
+                            <span class="material-symbols-outlined text-primary-container">receipt_long</span>
+                            <div>
+                                <h3 class="font-display font-semibold text-primary-container">Solicitudes de cotización
+                                </h3>
+                                <p class="text-xs text-on-surface-variant">Recibidas desde el formulario público</p>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-outline-variant text-left" style="background: #f7fafd;">
+                                        <th
+                                            class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+                                            Fecha</th>
+                                        <th
+                                            class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+                                            Nombre</th>
+                                        <th
+                                            class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant hidden md:table-cell">
+                                            Empresa</th>
+                                        <th
+                                            class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant hidden sm:table-cell">
+                                            Servicio</th>
+                                        <th
+                                            class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant hidden lg:table-cell">
+                                            Email</th>
+                                        <th
+                                            class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+                                            Contacto</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cotizaciones-tbody">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-12 text-on-surface-variant text-sm">
+                                            Cargando cotizaciones...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ─── CATEGORIAS SECTION ─── -->
+                <section id="section-categorias" class="section-content hidden">
+                    <div
+                        class="bg-white rounded-xl border border-outline-variant p-8 text-center max-w-md mx-auto mt-8">
+                        <span class="material-symbols-outlined text-5xl text-on-surface-variant mb-3 block"
+                            style="font-variation-settings: 'FILL' 0, 'wght' 200;">label</span>
+                        <h3 class="font-display font-semibold text-lg text-primary-container mb-1">Gestión de categorías
+                        </h3>
+                        <p class="text-sm text-on-surface-variant mb-4">Las categorías se gestionan directamente desde
+                            el formulario de productos.</p>
+                        <button data-section="productos"
+                            class="nav-trigger inline-flex items-center gap-2 text-sm font-semibold text-white rounded-lg px-5 py-2.5 transition-all hover:opacity-90"
+                            style="background: linear-gradient(135deg, #001f3f, #002a56);">
+                            <span class="material-symbols-outlined text-[16px]">inventory_2</span> Ir a Productos
+                        </button>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- =============================================
+       📦 PRODUCT MODAL (Add / Edit)
+  ============================================= -->
+    <div id="product-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+        style="background: rgba(0,6,19,0.6); backdrop-filter: blur(4px);">
+        <div id="modal-panel" class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden"
+            style="max-height: 92vh; overflow-y: auto;">
+
+            <!-- Modal header -->
+            <div
+                class="flex items-center justify-between px-6 py-4 sticky top-0 bg-white border-b border-outline-variant z-10">
+                <div>
+                    <h3 id="modal-title" class="font-display font-bold text-xl text-primary-container">Nuevo producto
+                    </h3>
+                    <p id="modal-subtitle" class="text-xs text-on-surface-variant mt-0.5">Completa la información del
+                        producto</p>
+                </div>
+                <button id="btn-close-modal"
+                    class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+
+            <!-- Modal body -->
+            <form id="product-form" novalidate class="p-6 flex flex-col gap-5">
+                <input type="hidden" id="field-id" />
+
+                <!-- Row: Nombre + Categoría -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1.5">
+                            Nombre <span class="text-error">*</span>
+                        </label>
+                        <input id="field-nombre" type="text" required placeholder="Ej. Playera polo corporativa"
+                            class="admin-input w-full px-4 py-3 border border-outline-variant rounded-lg text-sm transition-colors" />
+                        <p class="error-msg hidden text-xs text-error mt-1 flex items-center gap-1"><span
+                                class="material-symbols-outlined text-[12px]">error</span> Campo requerido</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1.5">
+                            Categoría <span class="text-error">*</span>
+                        </label>
+                        <div class="flex gap-2">
+                            <select id="field-categoria" required
+                                class="admin-input flex-1 px-4 py-3 border border-outline-variant rounded-lg text-sm bg-white transition-colors">
+                                <option value="">Seleccionar...</option>
+                                <option value="Uniformes">Uniformes</option>
+                                <option value="Bordados">Bordados</option>
+                                <option value="Playeras">Playeras</option>
+                                <option value="Gorras">Gorras</option>
+                                <option value="Accesorios">Accesorios</option>
+                                <option value="Estampados">Estampados</option>
+                            </select>
+                            <button type="button" id="btn-custom-cat" title="Categoría personalizada"
+                                class="w-11 flex-shrink-0 border border-outline-variant rounded-lg flex items-center justify-center text-on-surface-variant hover:border-primary-container hover:text-primary-container transition-colors">
+                                <span class="material-symbols-outlined text-[18px]">edit</span>
+                            </button>
+                        </div>
+                        <input id="field-categoria-custom" type="text" placeholder="Escribe la categoría..."
+                            class="admin-input hidden w-full mt-2 px-4 py-3 border border-outline-variant rounded-lg text-sm transition-colors" />
+                        <p class="error-msg hidden text-xs text-error mt-1 flex items-center gap-1"><span
+                                class="material-symbols-outlined text-[12px]">error</span> Campo requerido</p>
+                    </div>
+                </div>
+
+                <!-- Descripción -->
+                <div>
+                    <label
+                        class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1.5">Descripción</label>
+                    <textarea id="field-descripcion" rows="3"
+                        placeholder="Describe el producto, materiales, características..."
+                        class="admin-input w-full px-4 py-3 border border-outline-variant rounded-lg text-sm resize-none transition-colors"></textarea>
+                </div>
+
+                <!-- Row: Precio + Stock -->
+                <div class="grid grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1.5">
+                            Precio (MXN) <span class="text-error">*</span>
+                        </label>
+                        <div class="relative">
+                            <span
+                                class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-on-surface-variant">$</span>
+                            <input id="field-precio" type="number" min="0" step="0.01" required placeholder="0.00"
+                                class="admin-input w-full pl-7 pr-4 py-3 border border-outline-variant rounded-lg text-sm transition-colors" />
+                        </div>
+                        <p class="error-msg hidden text-xs text-error mt-1 flex items-center gap-1"><span
+                                class="material-symbols-outlined text-[12px]">error</span> Precio requerido</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1.5">
+                            Stock <span class="text-error">*</span>
+                        </label>
+                        <input id="field-stock" type="number" min="0" required placeholder="0"
+                            class="admin-input w-full px-4 py-3 border border-outline-variant rounded-lg text-sm transition-colors" />
+                        <p class="error-msg hidden text-xs text-error mt-1 flex items-center gap-1"><span
+                                class="material-symbols-outlined text-[12px]">error</span> Stock requerido</p>
+                    </div>
+                </div>
+
+                <!-- Image upload -->
+                <div>
+                    <label
+                        class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1.5">Imagen
+                        del producto</label>
+
+                    <!-- Drop zone -->
+                    <div id="drop-zone"
+                        class="relative border-2 border-dashed border-outline-variant rounded-xl p-6 text-center cursor-pointer hover:border-primary-container transition-all"
+                        onclick="document.getElementById('file-input').click()">
+                        <input id="file-input" type="file" accept="image/*" class="hidden" />
+                        <div id="drop-hint">
+                            <span class="material-symbols-outlined text-4xl text-on-surface-variant mb-2 block"
+                                style="font-variation-settings: 'FILL' 0, 'wght' 200;">cloud_upload</span>
+                            <p class="text-sm font-semibold text-on-surface-variant">Arrastra una imagen o haz clic aquí
+                            </p>
+                            <p class="text-xs text-outline mt-1">JPG, PNG, WEBP — máx. 5 MB</p>
+                        </div>
+                        <!-- Upload progress -->
+                        <div id="upload-progress" class="hidden">
+                            <div class="flex items-center justify-center gap-2 mb-2">
+                                <span
+                                    class="material-symbols-outlined text-secondary-container animate-spin text-[20px]">autorenew</span>
+                                <span class="text-sm font-semibold text-on-surface-variant">Subiendo imagen...</span>
+                            </div>
+                            <div class="w-full bg-surface-container-high rounded-full h-1.5">
+                                <div id="progress-bar" class="h-1.5 rounded-full transition-all"
+                                    style="background: #fd8b00; width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image preview -->
+                    <div id="img-preview-container"
+                        class="hidden mt-3 flex items-center gap-3 p-3 rounded-xl border border-outline-variant bg-surface-container-low">
+                        <img id="img-preview" src="" alt=""
+                            class="w-16 h-16 object-cover rounded-lg border border-outline-variant" />
+                        <div class="flex-1 min-w-0">
+                            <p id="img-preview-name" class="text-sm font-semibold text-on-surface truncate"></p>
+                            <p class="text-xs text-on-surface-variant mt-0.5">Imagen seleccionada</p>
+                        </div>
+                        <button type="button" id="btn-remove-img"
+                            class="text-on-surface-variant hover:text-error transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                    </div>
+
+                    <!-- URL fallback -->
+                    <div class="mt-3">
+                        <p class="text-xs text-on-surface-variant mb-1.5">O ingresa una URL de imagen:</p>
+                        <input id="field-imagen-url" type="url" placeholder="https://ejemplo.com/imagen.jpg"
+                            class="admin-input w-full px-4 py-2.5 border border-outline-variant rounded-lg text-sm transition-colors" />
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="flex items-center justify-end gap-3 pt-2 border-t border-outline-variant mt-1">
+                    <button type="button" id="btn-cancel"
+                        class="px-5 py-2.5 rounded-lg text-sm font-semibold text-on-surface-variant border border-outline-variant hover:bg-surface-container transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btn-submit"
+                        class="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90 active:scale-[0.97]"
+                        style="background: linear-gradient(135deg, #fd8b00, #e07a00);">
+                        <span id="submit-text">Guardar producto</span>
+                        <span id="submit-spinner"
+                            class="hidden material-symbols-outlined text-[16px] animate-spin">autorenew</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =============================================
+       🗑️ CONFIRM DELETE MODAL
+  ============================================= -->
+    <div id="confirm-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4"
+        style="background: rgba(0,6,19,0.6); backdrop-filter: blur(4px);">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+            <div class="w-14 h-14 rounded-full bg-error-container flex items-center justify-center mx-auto mb-4">
+                <span class="material-symbols-outlined text-error text-[28px]">delete_forever</span>
+            </div>
+            <h3 class="font-display font-bold text-xl text-on-surface mb-1">¿Eliminar producto?</h3>
+            <p class="text-sm text-on-surface-variant mb-1">Esta acción no se puede deshacer.</p>
+            <p id="confirm-product-name" class="text-sm font-semibold text-primary-container mb-6"></p>
+            <div class="flex gap-3">
+                <button id="btn-confirm-cancel"
+                    class="flex-1 py-2.5 rounded-lg text-sm font-semibold border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors">
+                    Cancelar
+                </button>
+                <button id="btn-confirm-delete"
+                    class="flex-1 py-2.5 rounded-lg text-sm font-bold text-on-error bg-error hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5">
+                    <span id="delete-text">Eliminar</span>
+                    <span id="delete-spinner"
+                        class="hidden material-symbols-outlined text-[14px] animate-spin">autorenew</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================================
+       🔔 TOAST CONTAINER
+  ============================================= -->
+    <div id="toast-container"></div>
+
+    <!-- =============================================
+       📱 MOBILE SIDEBAR OVERLAY
+  ============================================= -->
+    <div id="sidebar-overlay" class="hidden fixed inset-0 z-20 bg-black/50 lg:hidden" id="sidebar-overlay"></div>
+
+    <!-- =============================================
+       ⚙️ JAVASCRIPT
+  ============================================= -->
+    <script>
+        (() => {
+            // ─── STATE ───────────────────────────────────────
+            let currentUser = null;
+            let allProducts = [];
+            let filteredProducts = [];
+            let currentPage = 1;
+            const PAGE_SIZE = 10;
+            let editingId = null;
+            let pendingDeleteId = null;
+            let uploadedImageUrl = null;
+            let customCatMode = false;
+
+            // ─── DOM REFS ─────────────────────────────────────
+            const loginScreen = document.getElementById('login-screen');
+            const adminApp = document.getElementById('admin-app');
+            const loginEmail = document.getElementById('login-email');
+            const loginPass = document.getElementById('login-password');
+            const btnLogin = document.getElementById('btn-login');
+            const loginError = document.getElementById('login-error');
+            const loginErrMsg = document.getElementById('login-error-msg');
+            const btnLogout = document.getElementById('btn-logout');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const productModal = document.getElementById('product-modal');
+            const modalPanel = document.getElementById('modal-panel');
+            const confirmModal = document.getElementById('confirm-modal');
+            const tbody = document.getElementById('products-tbody');
+            const searchInput = document.getElementById('search-input');
+            const filterCat = document.getElementById('filter-cat');
+            const sortSelect = document.getElementById('sort-select');
+
+            // ─── TOAST ───────────────────────────────────────
+            function toast(msg, type = 'info') {
+                const icons = { success: 'check_circle', error: 'error', info: 'info' };
+                const el = document.createElement('div');
+                el.className = `toast ${type}`;
+                el.innerHTML = `<span class="material-symbols-outlined text-[18px] fill">${icons[type]}</span><span>${msg}</span>`;
+                document.getElementById('toast-container').appendChild(el);
+                setTimeout(() => {
+                    el.classList.add('removing');
+                    setTimeout(() => el.remove(), 320);
+                }, 3500);
+            }
+
+            // ─── AUTH ─────────────────────────────────────────
+            async function checkAuth() {
+                const { data: { session } } = await db.auth.getSession();
+                if (session?.user) {
+                    initAdminApp(session.user);
+                }
+            }
+
+            async function handleLogin() {
+                const email = loginEmail.value.trim();
+                const pass = loginPass.value;
+                if (!email || !pass) { showLoginError('Completa todos los campos.'); return; }
+
+                btnLogin.disabled = true;
+                document.getElementById('login-btn-text').textContent = 'Verificando...';
+                document.getElementById('login-spinner').classList.remove('hidden');
+                loginError.classList.add('hidden');
+
+                const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
+
+                btnLogin.disabled = false;
+                document.getElementById('login-btn-text').textContent = 'Ingresar al panel';
+                document.getElementById('login-spinner').classList.add('hidden');
+
+                if (error) { showLoginError(error.message); return; }
+                initAdminApp(data.user);
+            }
+
+            function showLoginError(msg) {
+                loginErrMsg.textContent = msg;
+                loginError.classList.remove('hidden');
+            }
+
+            async function handleLogout() {
+                await db.auth.signOut();
+                currentUser = null;
+                adminApp.classList.add('hidden');
+                loginScreen.classList.remove('hidden');
+                toast('Sesión cerrada', 'info');
+            }
+
+            function initAdminApp(user) {
+                currentUser = user;
+                loginScreen.classList.add('hidden');
+                adminApp.classList.remove('hidden');
+                document.getElementById('user-avatar').textContent = user.email[0].toUpperCase();
+                document.getElementById('user-email-display').textContent = user.email;
+                loadProducts();
+                loadDashboard();
+                loadCotizaciones();
+            }
+
+            // ─── NAVIGATION ───────────────────────────────────
+            function switchSection(name) {
+                document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                const section = document.getElementById(`section-${name}`);
+                const link = document.querySelector(`[data-section="${name}"]`);
+                if (section) section.classList.remove('hidden');
+                if (link) link.classList.add('active');
+
+                const titles = {
+                    dashboard: ['Dashboard', 'Resumen general del sistema'],
+                    productos: ['Productos', 'Gestión de catálogo e inventario'],
+                    cotizaciones: ['Cotizaciones', 'Solicitudes recibidas de clientes'],
+                    categorias: ['Categorías', 'Organización de productos']
+                };
+                const [t, s] = titles[name] || ['Dashboard', ''];
+                document.getElementById('page-title').textContent = t;
+                document.getElementById('page-subtitle').textContent = s;
+            }
+
+            // ─── PRODUCTS CRUD ────────────────────────────────
+            async function loadProducts() {
+                const { data, error } = await db.from('productos').select('*').order('created_at', { ascending: false });
+                if (error) { toast('Error cargando productos: ' + error.message, 'error'); return; }
+                allProducts = data || [];
+                populateCategoryFilter();
+                applyFilters();
+            }
+
+            function populateCategoryFilter() {
+                const cats = [...new Set(allProducts.map(p => p.categoria).filter(Boolean))];
+                const cur = filterCat.value;
+                filterCat.innerHTML = '<option value="">Todas las categorías</option>';
+                cats.forEach(c => {
+                    const o = document.createElement('option');
+                    o.value = c; o.textContent = c;
+                    if (c === cur) o.selected = true;
+                    filterCat.appendChild(o);
+                });
+                // Also populate modal select
+                const modalSelect = document.getElementById('field-categoria');
+                const existing = [...modalSelect.options].map(o => o.value);
+                cats.forEach(c => {
+                    if (!existing.includes(c)) {
+                        const o = document.createElement('option');
+                        o.value = c; o.textContent = c;
+                        modalSelect.appendChild(o);
+                    }
+                });
+            }
+
+            function applyFilters() {
+                const q = searchInput.value.toLowerCase().trim();
+                const cat = filterCat.value;
+                const [sortField, sortDir] = sortSelect.value.split('-');
+
+                filteredProducts = allProducts.filter(p => {
+                    const matchQ = !q || p.nombre?.toLowerCase().includes(q) || p.categoria?.toLowerCase().includes(q) || p.descripcion?.toLowerCase().includes(q);
+                    const matchCat = !cat || p.categoria === cat;
+                    return matchQ && matchCat;
+                });
+
+                filteredProducts.sort((a, b) => {
+                    let av = a[sortField], bv = b[sortField];
+                    if (typeof av === 'string') av = av.toLowerCase();
+                    if (typeof bv === 'string') bv = bv.toLowerCase();
+                    if (av < bv) return sortDir === 'asc' ? -1 : 1;
+                    if (av > bv) return sortDir === 'asc' ? 1 : -1;
+                    return 0;
+                });
+
+                currentPage = 1;
+                renderTable();
+            }
+
+            function renderTable() {
+                const count = filteredProducts.length;
+                document.getElementById('product-count').textContent = count;
+                const emptyState = document.getElementById('empty-state');
+
+                if (count === 0) {
+                    tbody.innerHTML = '';
+                    emptyState.classList.remove('hidden');
+                    document.getElementById('pagination-info').textContent = '';
+                    return;
+                }
+
+                emptyState.classList.add('hidden');
+                const start = (currentPage - 1) * PAGE_SIZE;
+                const page = filteredProducts.slice(start, start + PAGE_SIZE);
+                const totalPages = Math.ceil(count / PAGE_SIZE);
+
+                document.getElementById('pagination-info').textContent = `Pág. ${currentPage} de ${totalPages} (${count} total)`;
+                document.getElementById('btn-prev').disabled = currentPage <= 1;
+                document.getElementById('btn-next').disabled = currentPage >= totalPages;
+
+                tbody.innerHTML = page.map(p => {
+                    const stockClass = p.stock <= 0 ? 'text-error bg-error-container' :
+                        p.stock < 10 ? 'text-secondary bg-secondary-fixed' :
+                            'text-on-surface bg-surface-container-high';
+                    const catColors = {
+                        'Uniformes': '#001f3f,#d4e3ff', 'Bordados': '#341600,#ffdcc5',
+                        'Playeras': '#2f1500,#ffdcc3', 'Gorras': '#181c1e,#e0e3e6',
+                        'Accesorios': '#0e0300,#ffdcc5', 'Estampados': '#603100,#ffdcc3'
+                    };
+                    const [catFg, catBg] = (catColors[p.categoria] || '#181c1e,#e0e3e6').split(',');
+                    const imgTag = p.imagen_url
+                        ? `<img src="${p.imagen_url}" alt="${p.nombre}" class="w-10 h-10 object-cover rounded-lg border border-outline-variant" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="hidden w-10 h-10 rounded-lg bg-surface-container-high items-center justify-center"><span class='material-symbols-outlined text-[18px] text-outline'>image</span></div>`
+                        : `<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined text-[18px] text-outline">image</span></div>`;
+
+                    return `
+        <tr class="product-row border-b border-outline-variant" data-id="${p.id}">
+          <td class="px-4 py-3">${imgTag}</td>
+          <td class="px-4 py-3 max-w-[220px]">
+            <p class="font-semibold text-on-surface text-sm truncate">${p.nombre || '—'}</p>
+            <p class="text-xs text-on-surface-variant truncate mt-0.5">${p.descripcion ? p.descripcion.substring(0, 60) + '…' : 'Sin descripción'}</p>
+          </td>
+          <td class="px-4 py-3 hidden md:table-cell">
+            <span class="cat-pill" style="background:${catBg};color:${catFg}">${p.categoria || '—'}</span>
+          </td>
+          <td class="px-4 py-3 hidden sm:table-cell">
+            <span class="font-bold text-primary-container text-sm">$${Number(p.precio || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+          </td>
+          <td class="px-4 py-3 hidden lg:table-cell">
+            <span class="cat-pill ${stockClass}">${p.stock ?? '—'} uds</span>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-1">
+              <button class="btn-edit w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-primary-container transition-colors" data-id="${p.id}" title="Editar">
+                <span class="material-symbols-outlined text-[18px] pointer-events-none">edit</span>
+              </button>
+              <button class="btn-delete w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-error-container hover:text-error transition-colors" data-id="${p.id}" data-name="${p.nombre}" title="Eliminar">
+                <span class="material-symbols-outlined text-[18px] pointer-events-none">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+                }).join('');
+
+                // Row action listeners
+                tbody.querySelectorAll('.btn-edit').forEach(btn => {
+                    btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+                });
+                tbody.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', () => openConfirmDelete(btn.dataset.id, btn.dataset.name));
+                });
+            }
+
+            // ─── DASHBOARD ────────────────────────────────────
+            async function loadDashboard() {
+                const { data } = await db.from('productos').select('nombre,precio,stock,categoria,imagen_url,created_at').order('created_at', { ascending: false }).limit(5);
+                const products = data || allProducts;
+                const total = products.length || allProducts.length;
+                const low = (data || allProducts).filter(p => p.stock < 10).length;
+                const cats = new Set((data || allProducts).map(p => p.categoria).filter(Boolean)).size;
+                const val = (data || allProducts).reduce((s, p) => s + (Number(p.precio || 0) * Number(p.stock || 0)), 0);
+
+                document.getElementById('stat-total').textContent = allProducts.length || total;
+                document.getElementById('stat-low').textContent = low;
+                document.getElementById('stat-cats').textContent = cats;
+                document.getElementById('stat-value').textContent = '$' + val.toLocaleString('es-MX');
+
+                const recent = document.getElementById('dashboard-recent');
+                if (!data || data.length === 0) {
+                    recent.innerHTML = '<p class="text-center text-sm text-on-surface-variant py-8">No hay productos aún</p>';
+                    return;
+                }
+                recent.innerHTML = data.slice(0, 5).map(p => `
+        <div class="px-6 py-3.5 flex items-center gap-4 hover:bg-surface-container-low transition-colors">
+          ${p.imagen_url
+                        ? `<img src="${p.imagen_url}" class="w-10 h-10 object-cover rounded-lg border border-outline-variant flex-shrink-0" onerror="this.style.display='none'">`
+                        : `<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-[18px] text-outline">image</span></div>`
+                    }
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-on-surface truncate">${p.nombre}</p>
+            <p class="text-xs text-on-surface-variant">${p.categoria || '—'} · Stock: ${p.stock ?? '?'}</p>
+          </div>
+          <span class="text-sm font-bold text-primary-container flex-shrink-0">$${Number(p.precio || 0).toLocaleString('es-MX')}</span>
+        </div>
+      `).join('');
+            }
+
+            async function loadCotizaciones() {
+                const { data, error } = await db.from('cotizaciones').select('*').order('creado_en', { ascending: false }).limit(50);
+                const cotTbody = document.getElementById('cotizaciones-tbody');
+                if (error || !data?.length) {
+                    cotTbody.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-sm text-on-surface-variant">No hay cotizaciones recibidas aún.</td></tr>';
+                    return;
+                }
+                cotTbody.innerHTML = data.map(c => `
+        <tr class="product-row border-b border-outline-variant">
+          <td class="px-4 py-3 text-xs text-on-surface-variant whitespace-nowrap">${new Date(c.creado_en).toLocaleDateString('es-MX')}</td>
+          <td class="px-4 py-3 text-sm font-semibold text-on-surface">${c.nombre || '—'}</td>
+          <td class="px-4 py-3 text-sm text-on-surface-variant hidden md:table-cell">${c.empresa || '—'}</td>
+          <td class="px-4 py-3 hidden sm:table-cell"><span class="cat-pill bg-surface-container-high text-on-surface">${c.servicio || '—'}</span></td>
+          <td class="px-4 py-3 text-xs text-on-surface-variant hidden lg:table-cell">${c.email || '—'}</td>
+          <td class="px-4 py-3">
+            ${c.email ? `<a href="mailto:${c.email}" class="inline-flex items-center gap-1 text-xs font-semibold text-secondary-container hover:text-secondary transition-colors"><span class="material-symbols-outlined text-[14px]">mail</span> Escribir</a>` : '—'}
+          </td>
+        </tr>
+      `).join('');
+            }
+
+            // ─── MODAL OPEN/CLOSE ─────────────────────────────
+            function openNewModal() {
+                editingId = null;
+                uploadedImageUrl = null;
+                document.getElementById('product-form').reset();
+                document.getElementById('field-id').value = '';
+                document.getElementById('field-imagen-url').value = '';
+                document.getElementById('img-preview-container').classList.add('hidden');
+                document.getElementById('drop-hint').classList.remove('hidden');
+                document.getElementById('upload-progress').classList.add('hidden');
+                document.getElementById('field-categoria-custom').classList.add('hidden');
+                document.getElementById('field-categoria-custom').value = '';
+                customCatMode = false;
+                document.getElementById('modal-title').textContent = 'Nuevo producto';
+                document.getElementById('modal-subtitle').textContent = 'Completa la información del producto';
+                document.getElementById('submit-text').textContent = 'Guardar producto';
+                document.querySelectorAll('#product-form .error-msg').forEach(e => e.classList.add('hidden'));
+                showModal();
+            }
+
+            async function openEditModal(id) {
+                const p = allProducts.find(x => x.id == id);
+                if (!p) return;
+                editingId = id;
+                uploadedImageUrl = p.imagen_url || null;
+
+                document.getElementById('modal-title').textContent = 'Editar producto';
+                document.getElementById('modal-subtitle').textContent = p.nombre;
+                document.getElementById('submit-text').textContent = 'Actualizar producto';
+                document.getElementById('field-id').value = p.id;
+                document.getElementById('field-nombre').value = p.nombre || '';
+                document.getElementById('field-descripcion').value = p.descripcion || '';
+                document.getElementById('field-precio').value = p.precio || '';
+                document.getElementById('field-stock').value = p.stock ?? '';
+                document.getElementById('field-imagen-url').value = p.imagen_url || '';
+
+                // Set category
+                const catSelect = document.getElementById('field-categoria');
+                const opt = [...catSelect.options].find(o => o.value === p.categoria);
+                if (opt) {
+                    catSelect.value = p.categoria;
+                    customCatMode = false;
+                    document.getElementById('field-categoria-custom').classList.add('hidden');
+                } else if (p.categoria) {
+                    customCatMode = true;
+                    document.getElementById('field-categoria').value = '';
+                    document.getElementById('field-categoria-custom').classList.remove('hidden');
+                    document.getElementById('field-categoria-custom').value = p.categoria;
+                }
+
+                // Image preview
+                if (p.imagen_url) {
+                    document.getElementById('img-preview').src = p.imagen_url;
+                    document.getElementById('img-preview-name').textContent = 'Imagen actual';
+                    document.getElementById('img-preview-container').classList.remove('hidden');
+                    document.getElementById('drop-hint').classList.add('hidden');
+                } else {
+                    document.getElementById('img-preview-container').classList.add('hidden');
+                    document.getElementById('drop-hint').classList.remove('hidden');
+                }
+
+                document.querySelectorAll('#product-form .error-msg').forEach(e => e.classList.add('hidden'));
+                showModal();
+            }
+
+            function showModal() {
+                productModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                modalPanel.style.transform = 'scale(0.95)';
+                modalPanel.style.opacity = '0';
+                requestAnimationFrame(() => {
+                    modalPanel.style.transform = 'scale(1)';
+                    modalPanel.style.opacity = '1';
+                });
+            }
+
+            function closeModal() {
+                productModal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
+            // ─── FORM SUBMIT ──────────────────────────────────
+            async function handleSubmit(e) {
+                e.preventDefault();
+
+                const catSelect = document.getElementById('field-categoria');
+                const catCustom = document.getElementById('field-categoria-custom');
+                const nombre = document.getElementById('field-nombre').value.trim();
+                const categoria = customCatMode ? catCustom.value.trim() : catSelect.value;
+                const precio = parseFloat(document.getElementById('field-precio').value);
+                const stock = parseInt(document.getElementById('field-stock').value);
+                const descripcion = document.getElementById('field-descripcion').value.trim();
+                const imagenUrl = uploadedImageUrl || document.getElementById('field-imagen-url').value.trim() || null;
+
+                // Validation
+                let valid = true;
+                const setError = (id, show) => {
+                    const field = document.getElementById(id);
+                    const err = field?.parentElement?.querySelector('.error-msg');
+                    field?.classList.toggle('border-error', show);
+                    if (err) err.classList.toggle('hidden', !show);
+                    if (show) valid = false;
+                };
+
+                setError('field-nombre', !nombre);
+                setError('field-precio', isNaN(precio) || precio < 0);
+                setError('field-stock', isNaN(stock) || stock < 0);
+
+                if (!valid) return;
+
+                const btnSubmit = document.getElementById('btn-submit');
+                const submitText = document.getElementById('submit-text');
+                const submitSpinner = document.getElementById('submit-spinner');
+                btnSubmit.disabled = true;
+                submitText.textContent = editingId ? 'Actualizando...' : 'Guardando...';
+                submitSpinner.classList.remove('hidden');
+
+                const payload = { nombre, categoria: categoria || null, descripcion: descripcion || null, precio, stock, imagen_url: imagenUrl };
+
+                try {
+                    let error;
+                    if (editingId) {
+                        ({ error } = await db.from('productos').update(payload).eq('id', editingId));
+                    } else {
+                        ({ error } = await db.from('productos').insert([payload]));
+                    }
+                    if (error) throw error;
+                    toast(editingId ? 'Producto actualizado ✓' : 'Producto creado ✓', 'success');
+                    closeModal();
+                    await loadProducts();
+                    await loadDashboard();
+                } catch (err) {
+                    toast('Error: ' + err.message, 'error');
+                } finally {
+                    btnSubmit.disabled = false;
+                    submitText.textContent = editingId ? 'Actualizar producto' : 'Guardar producto';
+                    submitSpinner.classList.add('hidden');
+                }
+            }
+
+            // ─── DELETE ───────────────────────────────────────
+            function openConfirmDelete(id, name) {
+                pendingDeleteId = id;
+                document.getElementById('confirm-product-name').textContent = `"${name}"`;
+                confirmModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            async function confirmDelete() {
+                if (!pendingDeleteId) return;
+                const delBtn = document.getElementById('btn-confirm-delete');
+                document.getElementById('delete-text').textContent = 'Eliminando...';
+                document.getElementById('delete-spinner').classList.remove('hidden');
+                delBtn.disabled = true;
+
+                try {
+                    const { error } = await db.from('productos').delete().eq('id', pendingDeleteId);
+                    if (error) throw error;
+                    toast('Producto eliminado', 'info');
+                    confirmModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                    pendingDeleteId = null;
+                    await loadProducts();
+                    await loadDashboard();
+                } catch (err) {
+                    toast('Error al eliminar: ' + err.message, 'error');
+                } finally {
+                    document.getElementById('delete-text').textContent = 'Eliminar';
+                    document.getElementById('delete-spinner').classList.add('hidden');
+                    delBtn.disabled = false;
+                }
+            }
+
+            // ─── IMAGE UPLOAD ─────────────────────────────────
+            async function uploadFile(file) {
+                if (file.size > 5 * 1024 * 1024) { toast('La imagen supera 5 MB', 'error'); return null; }
+
+                document.getElementById('drop-hint').classList.add('hidden');
+                document.getElementById('upload-progress').classList.remove('hidden');
+                const bar = document.getElementById('progress-bar');
+                bar.style.width = '20%';
+
+                const ext = file.name.split('.').pop();
+                const path = `productos/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+
+                bar.style.width = '60%';
+                const { data, error } = await db.storage.from('productos-imagenes').upload(path, file, { upsert: true });
+
+                bar.style.width = '100%';
+                await new Promise(r => setTimeout(r, 300));
+                document.getElementById('upload-progress').classList.add('hidden');
+
+                if (error) {
+                    toast('Error subiendo imagen. Usa una URL en su lugar.', 'error');
+                    document.getElementById('drop-hint').classList.remove('hidden');
+                    return null;
+                }
+
+                const { data: { publicUrl } } = db.storage.from('productos-imagenes').getPublicUrl(path);
+
+                // Preview
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    document.getElementById('img-preview').src = ev.target.result;
+                    document.getElementById('img-preview-name').textContent = file.name;
+                    document.getElementById('img-preview-container').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+
+                toast('Imagen subida ✓', 'success');
+                return publicUrl;
+            }
+
+            // ─── EVENTS ───────────────────────────────────────
+            // Login
+            btnLogin.addEventListener('click', handleLogin);
+            loginEmail.addEventListener('keydown', e => { if (e.key === 'Enter') loginPass.focus(); });
+            loginPass.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+
+            document.getElementById('toggle-pass').addEventListener('click', () => {
+                const input = loginPass;
+                const icon = document.getElementById('eye-icon');
+                if (input.type === 'password') { input.type = 'text'; icon.textContent = 'visibility_off'; }
+                else { input.type = 'password'; icon.textContent = 'visibility'; }
+            });
+
+            // Logout
+            btnLogout.addEventListener('click', handleLogout);
+
+            // Nav
+            document.querySelectorAll('[data-section]').forEach(el => {
+                el.addEventListener('click', e => {
+                    e.preventDefault();
+                    switchSection(el.dataset.section);
+                    // Mobile close
+                    if (window.innerWidth < 1024) {
+                        sidebar.style.transform = 'translateX(-100%)';
+                        document.getElementById('sidebar-overlay').classList.add('hidden');
+                    }
+                });
+            });
+
+            // Mobile sidebar
+            document.getElementById('mobile-sidebar-btn').addEventListener('click', () => {
+                sidebar.style.transform = 'translateX(0)';
+                document.getElementById('sidebar-overlay').classList.remove('hidden');
+            });
+            document.getElementById('sidebar-overlay').addEventListener('click', () => {
+                sidebar.style.transform = 'translateX(-100%)';
+                document.getElementById('sidebar-overlay').classList.add('hidden');
+            });
+
+            // New product buttons
+            document.getElementById('btn-new-product').addEventListener('click', openNewModal);
+            document.getElementById('btn-empty-add').addEventListener('click', openNewModal);
+
+            // Modal close
+            document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+            document.getElementById('btn-cancel').addEventListener('click', closeModal);
+            productModal.addEventListener('click', e => { if (e.target === productModal) closeModal(); });
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') {
+                    closeModal();
+                    confirmModal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // Form submit
+            document.getElementById('product-form').addEventListener('submit', handleSubmit);
+
+            // Confirm delete
+            document.getElementById('btn-confirm-delete').addEventListener('click', confirmDelete);
+            document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
+                confirmModal.classList.add('hidden');
+                document.body.style.overflow = '';
+            });
+
+            // Search / filter
+            searchInput.addEventListener('input', applyFilters);
+            filterCat.addEventListener('change', applyFilters);
+            sortSelect.addEventListener('change', applyFilters);
+
+            // Refresh
+            document.getElementById('btn-refresh').addEventListener('click', async () => {
+                const icon = document.querySelector('#btn-refresh .material-symbols-outlined');
+                icon.classList.add('animate-spin');
+                await loadProducts();
+                setTimeout(() => icon.classList.remove('animate-spin'), 600);
+            });
+
+            // Pagination
+            document.getElementById('btn-prev').addEventListener('click', () => { currentPage--; renderTable(); });
+            document.getElementById('btn-next').addEventListener('click', () => { currentPage++; renderTable(); });
+
+            // Category custom toggle
+            document.getElementById('btn-custom-cat').addEventListener('click', () => {
+                customCatMode = !customCatMode;
+                document.getElementById('field-categoria').classList.toggle('hidden', customCatMode);
+                document.getElementById('field-categoria-custom').classList.toggle('hidden', !customCatMode);
+                document.getElementById('btn-custom-cat').querySelector('.material-symbols-outlined').textContent =
+                    customCatMode ? 'arrow_drop_down' : 'edit';
+            });
+
+            // File upload
+            const fileInput = document.getElementById('file-input');
+            fileInput.addEventListener('change', async () => {
+                if (fileInput.files[0]) uploadedImageUrl = await uploadFile(fileInput.files[0]);
+            });
+
+            // Drag & drop
+            const dropZone = document.getElementById('drop-zone');
+            ['dragenter', 'dragover'].forEach(evt => {
+                dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+            });
+            ['dragleave', 'drop'].forEach(evt => {
+                dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.remove('drag-over'); });
+            });
+            dropZone.addEventListener('drop', async e => {
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) uploadedImageUrl = await uploadFile(file);
+            });
+
+            // Remove image
+            document.getElementById('btn-remove-img').addEventListener('click', () => {
+                uploadedImageUrl = null;
+                fileInput.value = '';
+                document.getElementById('field-imagen-url').value = '';
+                document.getElementById('img-preview-container').classList.add('hidden');
+                document.getElementById('drop-hint').classList.remove('hidden');
+            });
+
+            // URL preview sync
+            document.getElementById('field-imagen-url').addEventListener('input', e => {
+                const url = e.target.value.trim();
+                if (url) {
+                    uploadedImageUrl = null;
+                    document.getElementById('img-preview').src = url;
+                    document.getElementById('img-preview-name').textContent = 'URL externa';
+                    document.getElementById('img-preview-container').classList.remove('hidden');
+                    document.getElementById('drop-hint').classList.add('hidden');
+                }
+            });
+
+            // Sidebar toggle (collapse)
+            document.getElementById('sidebar-toggle').addEventListener('click', () => {
+                const collapsed = sidebar.classList.toggle('w-16');
+                sidebar.classList.toggle('w-64', !collapsed);
+                mainContent.classList.toggle('ml-16', collapsed);
+                mainContent.classList.toggle('ml-64', !collapsed);
+                document.querySelectorAll('.sidebar-label').forEach(el => {
+                    el.classList.toggle('opacity-0', collapsed);
+                    el.classList.toggle('overflow-hidden', collapsed);
+                    el.classList.toggle('max-w-0', collapsed);
+                });
+            });
+
+            // Nav triggers (from non-sidebar elements)
+            document.querySelectorAll('.nav-trigger').forEach(el => {
+                el.addEventListener('click', e => {
+                    e.preventDefault();
+                    switchSection(el.dataset.section);
+                });
+            });
+
+            // Mobile: sidebar starts hidden
+            if (window.innerWidth < 1024) {
+                sidebar.style.transform = 'translateX(-100%)';
+                mainContent.classList.remove('ml-64');
+                mainContent.classList.add('ml-0');
+            }
+
+            // ─── INIT ─────────────────────────────────────────
+            checkAuth();
+
+            // Auth state listener
+            db.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_OUT') {
+                    adminApp.classList.add('hidden');
+                    loginScreen.classList.remove('hidden');
+                }
+            });
+
+        })();
+    </script>
+
+</body>
+
+</html>
