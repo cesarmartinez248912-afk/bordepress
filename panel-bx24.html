@@ -988,14 +988,25 @@
             }
 
             // ─── AUTH ─────────────────────────────────────────
+            // Clave usada en sessionStorage (se borra al cerrar el tab/ventana)
+            const SESSION_KEY = 'bx_admin_tab_session';
+
             async function checkAuth() {
-                // getUser() valida el token contra el servidor de Supabase (más seguro que getSession())
-                // getSession() solo lee localStorage sin verificar si el token sigue siendo válido
+                // Si no hay flag en sessionStorage, es una visita nueva (tab cerrado / nueva ventana)
+                // → forzar cierre de sesión de Supabase y mostrar login
+                if (!sessionStorage.getItem(SESSION_KEY)) {
+                    await db.auth.signOut();
+                    loginScreen.classList.remove('hidden');
+                    adminApp.classList.add('hidden');
+                    return;
+                }
+                // Hay flag → validar token contra el servidor (más seguro que solo leer localStorage)
                 const { data: { user }, error } = await db.auth.getUser();
                 if (!error && user) {
                     initAdminApp(user);
                 } else {
-                    // Token inválido o expirado: forzar pantalla de login y limpiar sesión local
+                    // Token expirado o inválido
+                    sessionStorage.removeItem(SESSION_KEY);
                     await db.auth.signOut();
                     loginScreen.classList.remove('hidden');
                     adminApp.classList.add('hidden');
@@ -1019,6 +1030,9 @@
                 document.getElementById('login-spinner').classList.add('hidden');
 
                 if (error) { showLoginError(error.message); return; }
+
+                // Marcar sesión activa EN ESTE TAB (sessionStorage se borra al cerrar el tab)
+                sessionStorage.setItem(SESSION_KEY, '1');
                 initAdminApp(data.user);
             }
 
@@ -1028,6 +1042,7 @@
             }
 
             async function handleLogout() {
+                sessionStorage.removeItem(SESSION_KEY);
                 await db.auth.signOut();
                 currentUser = null;
                 adminApp.classList.add('hidden');
@@ -1069,7 +1084,38 @@
             // ─── PRODUCTS CRUD ────────────────────────────────
             async function loadProducts() {
                 const { data, error } = await db.from('productos').select('*').order('created_at', { ascending: false });
-                if (error) { toast('Error cargando productos: ' + error.message, 'error'); return; }
+                if (error) {
+                    // Error 42501 = RLS / permission denied para el rol authenticated
+                    if (error.code === '42501' || error.message?.toLowerCase().includes('policy')) {
+                        toast('⚠️ Falta política SELECT en Supabase. Ve a la sección de ayuda abajo.', 'error');
+                        // Mostrar banner de ayuda en la tabla
+                        tbody.innerHTML = `
+                          <tr><td colspan="6" class="px-6 py-8">
+                            <div class="rounded-xl border border-error bg-error-container p-5 text-sm">
+                              <p class="font-bold text-error mb-2 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[18px]">lock</span>
+                                Falta permiso de lectura para administradores
+                              </p>
+                              <p class="text-on-error-container mb-3">
+                                Ejecuta este SQL en el <strong>Editor SQL de Supabase</strong> (Dashboard → SQL Editor):
+                              </p>
+                              <pre class="bg-primary-container text-on-primary text-xs rounded-lg p-4 overflow-x-auto select-all whitespace-pre-wrap">-- Permiso de lectura para el admin (rol authenticated)
+CREATE POLICY "Admin lee productos"
+  ON productos FOR SELECT TO authenticated USING (true);
+
+-- También para imágenes en storage (si no lo tienes ya)
+CREATE POLICY "Admin gestiona imágenes"
+  ON storage.objects FOR ALL TO authenticated
+  USING (bucket_id = 'productos-imagenes')
+  WITH CHECK (bucket_id = 'productos-imagenes');</pre>
+                              <p class="text-xs text-on-surface-variant mt-3">Después de ejecutarlo, recarga esta página y vuelve a iniciar sesión.</p>
+                            </div>
+                          </td></tr>`;
+                    } else {
+                        toast('Error cargando productos: ' + error.message, 'error');
+                    }
+                    return;
+                }
                 allProducts = data || [];
                 populateCategoryFilter();
                 applyFilters();
@@ -1338,10 +1384,9 @@
                 const catCustom = document.getElementById('field-categoria-custom');
                 const nombre = document.getElementById('field-nombre').value.trim();
                 const categoria = customCatMode ? catCustom.value.trim() : catSelect.value;
-                const precioRaw = document.getElementById('field-precio').value;
-                const stockRaw = document.getElementById('field-stock').value;
-                const precio = precioRaw !== '' ? parseFloat(precioRaw) : NaN;
-                const stock = stockRaw !== '' ? parseInt(stockRaw, 10) : NaN;
+                const precio = parseFloat(document.getElementById('field-precio').value) || 0;
+                const stock = parseInt(document.getElementById('field-stock').value, 10);
+                const stockFinal = isNaN(stock) || stock < 0 ? 0 : stock;
                 const descripcion = document.getElementById('field-descripcion').value.trim();
                 const imagenUrl = uploadedImageUrl || document.getElementById('field-imagen-url').value.trim() || null;
 
@@ -1368,7 +1413,7 @@
                 submitText.textContent = editingId ? 'Actualizando...' : 'Guardando...';
                 submitSpinner.classList.remove('hidden');
 
-                const payload = { nombre, categoria: categoria || null, descripcion: descripcion || null, precio, stock: isNaN(stock) ? 0 : stock, imagen_url: imagenUrl };
+                const payload = { nombre, categoria: categoria || null, descripcion: descripcion || null, precio, stock: stockFinal, imagen_url: imagenUrl };
 
                 try {
                     let error;
